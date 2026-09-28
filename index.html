@@ -5,15 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eryn Montgomery</title>
   <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <style>
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
     .topnav {
       display: flex;
       flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 1.5rem;
       max-width: 64rem;
       margin: 0 auto;
       padding: 1.5rem 1rem;
     }
+    .topnav a { color: #111; text-decoration: none; font-size: 0.9rem; }
+    .topnav a:hover { text-decoration: underline; }
 
     .intro {
       display: flex;
@@ -25,6 +38,8 @@
       margin: 0 auto;
       padding: 6rem 1rem 2rem;
     }
+    .intro h1 { flex: 1 1 18rem; margin: 0; font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
+    .intro h1 span { display: block; font-family: "UnifrakturMaguntia", serif; font-size: clamp(2.25rem, 5.5vw, 4.4rem); }
 
     /* Framed portrait: three stacked layers. Change these to restyle it. */
     .portrait {
@@ -33,6 +48,7 @@
       --zoom: 0.7;                /* portrait width relative to the frame's inner width */
 
       position: relative;
+      flex: 0 1 26rem;
       width: 100%;
       max-width: 26rem;
       aspect-ratio: 1576 / 1624;
@@ -64,7 +80,7 @@
   </nav>
 
   <section class="intro">
-    <h1>Hi, I'm Eryn Montgomery</h1>
+    <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
     <div class="portrait">
       <div class="clip"><img src="assets/eryn-portrait.png" alt="Eryn Montgomery" width="1086" height="1448"></div>
       <div class="frame"></div>
