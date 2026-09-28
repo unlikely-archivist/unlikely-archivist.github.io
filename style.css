@@ -392,7 +392,10 @@ body {
 .resume h1 { margin: 0; font: 400 3rem/1.1 "UnifrakturMaguntia", serif; }
 .resume a { color: inherit; text-decoration-color: #9b1c1c; text-underline-offset: 2px; }
 .resume-contact { margin: 0.4em 0 0; color: #555; font-size: 0.9em; }
-.resume-download { margin: 0.5em 0 0; font-size: 0.9em; font-weight: 500; }
+.resume-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; }
+.resume-download { font-size: 0.9em; font-weight: 500; }
+.resume-bottom { margin: 2.5em 0 0; text-align: center; }
+.print-only { display: none; }  /* website and GitHub: redundant on the site, needed in the PDF */
 .resume-summary { margin: 0.75em 0 0; }
 .resume-strengths { margin: 0.6em 0 0; font-weight: 500; }
 .resume h2 { margin: 1.4em 0 0.5em; padding-bottom: 0.25rem; border-bottom: 2px solid #9b1c1c; color: #9b1c1c; font-size: 0.85em; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -403,7 +406,8 @@ body {
 .resume-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 0 2rem; }
 @media print {
   @page { size: letter; margin: 0.5in; }
-  .topnav, .resume-download { display: none; }
+  .topnav, .resume-download, .resume-bottom { display: none; }
+  .print-only { display: inline; }
   .resume { max-width: none; padding: 0; font-size: 9.5pt; line-height: 1.4; }
   .resume h1 { font-size: 28pt; }
   .resume a { text-decoration: none; }
