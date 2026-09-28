@@ -93,6 +93,7 @@ body {
 .portrait .clip { --mask: url(assets/portrait-frame-inner.png); background: var(--frame-fill); }
 .portrait .frame { --mask: url(assets/portrait-frame-black.png); background: var(--frame-color); }
 /* 83.12% = frame's inner width, 49.62% = its center, 7.76% = sits just below its inner bottom edge */
+.portrait img.poster,
 .portrait video {
   position: absolute;
   display: block;
@@ -100,6 +101,13 @@ body {
   left: calc(49.62% - 41.56% * var(--zoom));
   bottom: 7.76%;
   height: auto;
+}
+.portrait video {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.portrait video.is-playing {
+  opacity: 1;
 }
 
 /* ---------- film page ---------- */
