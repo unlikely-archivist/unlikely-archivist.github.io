@@ -32,13 +32,15 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
+      justify-content: center;
+      gap: 3rem;
       max-width: 64rem;
       margin: 0 auto;
       padding: 6rem 1rem 2rem;
     }
-    .intro h1 { flex: 1 1 18rem; margin: 0; font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
+    .intro-text { flex: 0 1 30rem; }
+    .intro h1 { margin: 0; font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
+    .blurb { margin: 1.25rem 0 0; font-size: 1.1rem; line-height: 1.55; }
     .intro h1 span { display: block; font-family: "UnifrakturMaguntia", serif; font-size: clamp(2.25rem, 5.5vw, 4.4rem); }
 
     /* Framed portrait: three stacked layers. Change these to restyle it. */
@@ -80,7 +82,10 @@
   </nav>
 
   <section class="intro">
-    <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
+    <div class="intro-text">
+      <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
+      <p class="blurb">Formerly a property master in the film industry. When tech took my job, I decided to join the club. Now I'm an independent, self-taught developer, shipping something every day.</p>
+    </div>
     <div class="portrait">
       <div class="clip"><img src="assets/eryn-portrait.png" alt="Eryn Montgomery" width="1086" height="1448"></div>
       <div class="frame"></div>
