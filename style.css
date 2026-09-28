@@ -116,7 +116,29 @@ body {
 .credit-photo { width: 64%; margin: 2rem 0 0; }
 .credit-photo img { display: block; width: 100%; height: auto; }
 .credit-photo figcaption { margin-top: 0.5rem; color: #555; font-size: 0.9rem; }
-.film-player { margin: 2rem 0 0; }
+.section-directed,
+.section-wsu {
+  margin-top: 1.5rem;
+}
+
+.lemonade-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+@media (max-width: 52rem) {
+  .lemonade-showcase {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.lemonade-showcase .film-player {
+  margin: 0;
+}
+
 .film-player video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
 .film-player figcaption { margin-top: 0.5rem; color: #555; font-size: 0.9rem; }
 .credits a { color: inherit; text-decoration-color: #9b1c1c; text-underline-offset: 3px; }
@@ -126,14 +148,15 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem 1.25rem;
-  margin-top: 1.5rem;
+  justify-content: center;
+  gap: 1.25rem 1.5rem;
 }
 .laurels img {
-  height: 3.25rem;
+  height: clamp(4.5rem, 7vw, 6rem);
   width: auto;
   max-width: 100%;
   object-fit: contain;
 }
+
 
 
