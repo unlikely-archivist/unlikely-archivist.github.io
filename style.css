@@ -41,7 +41,14 @@ body {
 /* ---------- home: selected projects ---------- */
 .home-projects { max-width: 64rem; margin: 0 auto; padding: 2rem 1rem 5rem; }
 .home-projects h2 { margin: 0 0 1rem; color: #9b1c1c; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
-.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: 1rem; }
+/* three tech projects on the first row, two art projects filling the second */
+.home-cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
+.home-card { grid-column: span 2; }
+.home-card:nth-child(n+4) { grid-column: span 3; }
+@media (max-width: 42rem) {
+  .home-cards { grid-template-columns: 1fr; }
+  .home-card, .home-card:nth-child(n+4) { grid-column: auto; }
+}
 .home-card { display: grid; align-content: start; gap: 0.5rem; padding: 1.25rem; border-top: 3px solid #9b1c1c; background: #f3f3f3; color: #111; text-decoration: none; }
 .home-card strong { font-size: 1.3rem; font-weight: 500; }
 .home-card span { color: #555; font-size: 0.95rem; line-height: 1.5; }
