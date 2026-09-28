@@ -118,24 +118,29 @@ body {
 .credit-photo figcaption { margin-top: 0.5rem; color: #555; font-size: 0.9rem; }
 .section-directed,
 .section-wsu {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .lemonade-showcase {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 2.5rem;
   margin-top: 1.5rem;
-}
-@media (max-width: 52rem) {
-  .lemonade-showcase {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
 }
 
 .lemonade-showcase .film-player {
+  flex: 1 1 28rem;
+  margin: 0;
+}
+
+.lemonade-showcase .laurels {
+  flex: 1 1 22rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem 1.75rem;
   margin: 0;
 }
 
@@ -144,15 +149,8 @@ body {
 .credits a { color: inherit; text-decoration-color: #9b1c1c; text-underline-offset: 3px; }
 .imdb-wrap { margin: 2.5rem 0 1rem; }
 .page .imdb { display: inline-block; color: #111; text-decoration-color: #9b1c1c; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.laurels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem 1.5rem;
-}
 .laurels img {
-  height: clamp(4.5rem, 7vw, 6rem);
+  height: clamp(5rem, 8vw, 6.5rem);
   width: auto;
   max-width: 100%;
   object-fit: contain;
