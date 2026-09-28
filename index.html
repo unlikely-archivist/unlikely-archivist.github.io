@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eryn Montgomery · Creative Technologist &amp; Automation Engineer</title>
-  <meta name="description" content="Creative technologist and automation engineer. Eryn Montgomery takes unusual, poorly defined problems and creates distinctive working tools: a self-fact-checking publication, a photo scheduler that writes its own captions, and more.">
+  <meta name="description" content="Creative technologist and automation engineer. Eryn Montgomery builds automation, browser applications, human-supervised AI systems, and interactive fictional worlds.">
   <meta property="og:title" content="Eryn Montgomery · Creative Technologist &amp; Automation Engineer">
-  <meta property="og:description" content="Creative technologist and automation engineer. Eryn Montgomery takes unusual, poorly defined problems and creates distinctive working tools: a self-fact-checking publication, a photo scheduler that writes its own captions, and more.">
+  <meta property="og:description" content="Creative technologist and automation engineer. Eryn Montgomery builds automation, browser applications, human-supervised AI systems, and interactive fictional worlds.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://erynmontgomery.com/">
   <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
@@ -34,10 +34,21 @@
   <section class="intro">
     <div class="intro-text">
       <h1><span>Eryn Montgomery</span></h1>
-      <p class="tagline">Creative Technologist &amp; Automation Engineer</p>
-      <p class="pitch">I build automation and AI tools that run on their own.</p>
-      <p class="blurb">A weekly publication that researches, fact-checks, and publishes itself. A photo scheduler that writes its own captions and waits for approval. A tool that cut a 104,000-line document to 9,700.</p>
-      <p class="blurb">Before this, I spent a decade in film, running prop departments on features like <em>Master Gardener</em> and <em>Goons</em>, and worked on the Oscar-winning documentary <em>American Factory</em>. When AI started coming for film jobs, I started building with it.</p>
+      <p class="tagline"><span>Creative Technologist &amp;</span> <span>Automation Engineer</span></p>
+      <p class="pitch"><span>I build things with code.</span> <span><span>Some useful,</span> <span>some for entertainment.</span></span></p>
+      <p class="blurb">Automation, browser applications, human-supervised AI systems, and interactive fictional worlds. My recent work includes a publication that researches, fact-checks, and publishes itself; a social media scheduler that drafts its own captions and never posts without approval; and tools for creative design.</p>
+      <p class="blurb">Before this, I spent a decade running <a class="film-link" href="film.html" aria-describedby="film-card">prop departments in the film industry</a>, managing budgets, crews, vendors, and deadlines, but most importantly <em>anticipating what other people were going to want or do, and what could possibly go wrong.</em> I bring that same lens to technology: identify potential problems, anticipate behavior (human and machine), and cover my @$$.</p>
+      <div class="film-card" id="film-card">
+        <ul>
+          <li><em>Goons</em> (2024) <span class="role">· Property Master</span></li>
+          <li><em>Chopin</em> (2023) <span class="role">· Property Master</span></li>
+          <li><em>Hitman</em> (2022) <span class="role">· Asst. Propmaster · dir. Richard Linklater</span></li>
+          <li><em>Master Gardener</em> (2022) <span class="role">· Property Master · dir. Paul Schrader</span></li>
+          <li><em>Queen of the South</em> (2020–21) <span class="role">· Property Master &amp; Props Buyer</span></li>
+          <li><em>American Factory</em> (2019) <span class="role">· Addl. Asst. Editor</span><span class="award">Won Best Documentary Feature, 2020 Oscars</span></li>
+        </ul>
+        <a class="more" href="film.html">See full filmography →</a>
+      </div>
       <p class="intro-links"><a href="unlikely-archivist.html">See the projects →</a> <a href="film.html">Film credits →</a></p>
     </div>
     <div class="portrait">
@@ -97,6 +108,22 @@
         portraitImg.src = 'assets/eryn-portrait-end.png';
       }, 4900);
     }
+
+    // Place the credits card just under the film link, wherever the line wraps.
+    const filmLink = document.querySelector('.film-link');
+    const filmCard = document.querySelector('.film-card');
+    const placeCard = () => {
+      // anchor to the link's last line, since the link can wrap
+      const lines = filmLink.getClientRects();
+      const last = lines[lines.length - 1];
+      const box = filmCard.offsetParent.getBoundingClientRect();
+      filmCard.style.top = `${last.bottom - box.top + 6}px`;
+      // start under that line, but shift left if the card would run off the right edge of the window
+      const maxLeft = innerWidth - 16 - box.left - filmCard.offsetWidth;
+      filmCard.style.left = `${Math.min(last.left - box.left, maxLeft)}px`;
+    };
+    filmLink.addEventListener('pointerenter', placeCard);
+    filmLink.addEventListener('focus', placeCard);
   </script>
   <footer class="site-footer">
     <a href="https://github.com/unlikely-archivist">GitHub</a>
