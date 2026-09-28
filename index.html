@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/eryn-laugh-poster.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/eryn-portrait-still.png" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/eryn-portrait-anim.gif">
   <link rel="preload" as="image" href="assets/portrait-frame-inner.png">
   <link rel="preload" as="image" href="assets/portrait-frame-black.png">
   <link rel="stylesheet" href="style.css">
@@ -43,8 +44,7 @@
     </div>
     <div class="portrait">
       <div class="clip">
-        <img class="poster" src="assets/eryn-laugh-poster.jpg" alt="Eryn Montgomery" width="376" height="500" fetchpriority="high">
-        <video src="assets/eryn-laugh.mp4" width="376" height="500" muted loop playsinline preload="auto" role="img" aria-label="Eryn Montgomery"></video>
+        <img class="portrait-img" src="assets/eryn-portrait-still.png" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
       </div>
       <div class="frame"></div>
     </div>
@@ -53,23 +53,30 @@
   <script>
     // Portrait laughs on hover (mouse) or tap (touch); stays still for people who prefer reduced motion.
     const portrait = document.querySelector('.portrait');
-    const video = portrait.querySelector('video');
+    const img = portrait.querySelector('.portrait-img');
+    const stillSrc = 'assets/eryn-portrait-still.png';
+    const animSrc = 'assets/eryn-portrait-anim.gif';
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Preload animated gif into memory
+    const gifCache = new Image();
+    gifCache.src = animSrc;
+
+    let active = false;
     const play = () => {
-      if (!reduceMotion.matches) {
-        video.play().then(() => video.classList.add('is-playing')).catch(() => {});
-      }
+      if (reduceMotion.matches || active) return;
+      active = true;
+      img.src = animSrc + '?t=' + Date.now();
     };
     const stop = () => {
-      video.pause();
-      video.currentTime = 0;
-      video.classList.remove('is-playing');
+      if (!active) return;
+      active = false;
+      img.src = stillSrc;
     };
-    video.addEventListener('playing', () => video.classList.add('is-playing'));
-    video.addEventListener('pause', () => video.classList.remove('is-playing'));
+
     portrait.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') play(); });
     portrait.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') stop(); });
-    portrait.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') video.paused ? play() : stop(); });
+    portrait.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') active ? stop() : play(); });
 
     // Place the credits card just under the film link, wherever the line wraps.
     const filmLink = document.querySelector('.film-link');
