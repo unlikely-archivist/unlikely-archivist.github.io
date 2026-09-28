@@ -10,8 +10,8 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 SCALE = 2          # the frame source is small; render at 2x so it stays sharp
-PORTRAIT_ZOOM = 1.15  # portrait width relative to the frame's inner width
-FACE_Y = 0.36      # where the face sits in the portrait, as a fraction of its height
+PORTRAIT_ZOOM = 0.7  # portrait width relative to the frame's inner width; lower = more zoomed out
+BOTTOM_OVERLAP = 40  # px the portrait runs past the frame's inner bottom, so the photo's cut edge stays hidden
 
 frame_src = Image.open(ASSETS / "portrait-frame.png").convert("L")
 frame_src = frame_src.resize((frame_src.width * SCALE, frame_src.height * SCALE), Image.LANCZOS)
@@ -32,7 +32,7 @@ portrait = Image.open(ASSETS / "eryn-portrait.png").convert("RGBA")
 width = int((right - left) * PORTRAIT_ZOOM)
 portrait = portrait.resize((width, int(portrait.height * width / portrait.width)), Image.LANCZOS)
 x = (left + right) // 2 - width // 2
-y = (top + bottom) // 2 - int(portrait.height * FACE_Y)
+y = bottom - portrait.height + BOTTOM_OVERLAP
 
 layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
 layer.paste(portrait, (x, y), portrait)
