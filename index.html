@@ -3,75 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eryn Montgomery</title>
+  <title>Eryn Montgomery · Unlikely Archivist</title>
   <meta name="description" content="Eryn Montgomery builds automation and web tools as Unlikely Archivist. Former film property master.">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header>
-    <div class="photo" aria-hidden="true">[photo]</div>
-    <h1>Eryn Montgomery</h1>
-    <p class="tagline">I build automation and web tools as <strong>Unlikely Archivist</strong>. Before that, I ran prop departments on feature films.</p>
-  </header>
+  <main class="desktop">
 
-  <main>
-    <section id="about">
-      <h2>About</h2>
-      <p>For years I worked in film as a property master and assistant propmaster: breaking scripts down into lists of everything that has to exist, sourcing and building it, and running budgets and crews against shoot days that don't move.</p>
-      <p>Now I build software the same way. Small tools that solve a specific problem and actually ship.</p>
+    <section class="window about" aria-labelledby="about-heading">
+      <div class="titlebar"><span>about_me.txt</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <div class="intro">
+          <img class="mark" src="assets/ua-mark.png" alt="" width="288" height="312">
+          <div>
+            <h1 id="about-heading">Eryn Montgomery</h1>
+            <p class="tagline">I build automation and web tools as <strong>Unlikely Archivist</strong>. Before that, I ran prop departments on feature films.</p>
+          </div>
+        </div>
+        <p>For years I worked in film as a property master and assistant propmaster: breaking scripts down into lists of everything that has to exist, sourcing and building it, and running budgets and crews against shoot days that don't move.</p>
+        <p>Now I build software the same way. Small tools that solve a specific problem and actually ship.</p>
+      </div>
     </section>
 
-    <section id="projects">
-      <h2>Projects</h2>
+    <section class="window portrait" aria-labelledby="portrait-heading">
+      <div class="titlebar"><span>self_portrait.jpg</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h2 id="portrait-heading" class="visually-hidden">Self-portrait</h2>
+        <figure>
+          <svg class="cord" viewBox="0 0 120 40" aria-hidden="true"><path d="M8 40 L60 6 L112 40" fill="none" stroke="#2b2b2b" stroke-width="1.5"/><circle cx="60" cy="6" r="4" fill="#2b2b2b"/></svg>
+          <div class="frame">
+            <img src="assets/self-portrait.jpg" width="1000" height="914" loading="lazy"
+                 alt="AI self-portrait: a chrome-bodied version of me sits chin in hand before a pink birthday cake, a vacuum cleaner in the chair opposite and an electric fan behind.">
+          </div>
+          <figcaption>AI self-portrait, one of an ongoing series.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-      <article class="project">
-        <h3>Crierbaby</h3>
+    <h2 class="desktop-label">Projects</h2>
+
+    <article class="window project" aria-labelledby="crierbaby-heading">
+      <div class="titlebar"><span>crierbaby.exe</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h3 id="crierbaby-heading">Crierbaby</h3>
         <p>Posts a photo to Bluesky every day with a caption an AI writes in your voice. Tell its agent about trips, links, or tone and it works them into upcoming captions. You just approve.</p>
-        <p class="stack">Cloudflare Workers · D1 · vision LLM · Bluesky API · installable web app</p>
-        <p><a href="#">[link]</a></p>
-      </article>
+        <p class="status-note">⚠ Live demo in progress</p>
+      </div>
+      <div class="statusbar">Cloudflare Workers · D1 · vision LLM · Bluesky API · installable web app</div>
+    </article>
 
-      <article class="project">
-        <h3>RIP·URL</h3>
+    <article class="window project" aria-labelledby="ripurl-heading">
+      <div class="titlebar"><span>rip_url.exe</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h3 id="ripurl-heading">RIP·URL</h3>
         <p>Automated obituaries for dead domains.</p>
-        <p class="stack">Val Town</p>
-        <p><a href="#">[link]</a></p>
-      </article>
+        <p class="status-note">⚠ Latest obituary will load here live</p>
+      </div>
+      <div class="statusbar">Val Town</div>
+    </article>
 
-      <article class="project">
-        <h3>Circuit Cathedral</h3>
+    <article class="window project" aria-labelledby="cathedral-heading">
+      <div class="titlebar"><span>circuit_cathedral.htm</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h3 id="cathedral-heading">Circuit Cathedral</h3>
         <p>[one-line description]</p>
-        <p class="stack">Neocities · Val Town</p>
-        <p><a href="#">[link]</a></p>
-      </article>
+        <p><a class="button" href="#">[link]</a></p>
+      </div>
+      <div class="statusbar">Neocities · Val Town</div>
+    </article>
 
-      <article class="project">
-        <h3>Flatpack</h3>
+    <article class="window project" aria-labelledby="flatpack-heading">
+      <div class="titlebar"><span>flatpack.md</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h3 id="flatpack-heading">Flatpack</h3>
         <p>An Obsidian template that merges notes into one master document, pulling in embeds without the "echo" from heavily cross-embedded vaults and keeping folder structure intact.</p>
-        <p class="stack">Obsidian · Templater · JavaScript</p>
-        <p><a href="https://github.com/unlikely-archivist/Flatpack">GitHub</a></p>
-      </article>
+        <p><a class="button" href="https://github.com/unlikely-archivist/Flatpack">View on GitHub</a></p>
+      </div>
+      <div class="statusbar">Obsidian · Templater · JavaScript</div>
+    </article>
+
+    <section class="window film" aria-labelledby="film-heading">
+      <div class="titlebar"><span>film_credits.txt</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h2 id="film-heading">Before tech: film</h2>
+        <ul class="credits">
+          <li><em>Master Gardener</em> <span>dir. Paul Schrader · Property Master</span></li>
+          <li><em>Hitman</em> <span>dir. Richard Linklater, Netflix · Assistant Propmaster</span></li>
+          <li><em>Leverage: Redemption</em> <span>Amazon Prime · Assistant Propmaster</span></li>
+          <li><em>Queen of the South</em> <span>USA Network · Props Buyer &amp; Propmaster</span></li>
+        </ul>
+        <p>My thesis film <a href="https://archive.org/details/lemonade-eryn-montgomery"><em>Lemonade</em></a> screened at the Savannah Film Festival, the Wexner Center's Ohio Shorts program, and five other festivals, and won Best Student Film at Festigious.</p>
+        <p><a class="button" href="https://www.imdb.com/name/nm5005363/">Full credits on IMDb</a></p>
+      </div>
     </section>
 
-    <section id="film">
-      <h2>Film</h2>
-      <ul class="credits">
-        <li><em>Master Gardener</em> (dir. Paul Schrader) — Property Master</li>
-        <li><em>Hitman</em> (dir. Richard Linklater, Netflix) — Assistant Propmaster</li>
-        <li><em>Leverage: Redemption</em> (Amazon Prime) — Assistant Propmaster</li>
-        <li><em>Queen of the South</em> (USA Network) — Props Buyer &amp; Propmaster</li>
-      </ul>
-      <p>My thesis film <a href="https://archive.org/details/lemonade-eryn-montgomery"><em>Lemonade</em></a> screened at the Savannah Film Festival, the Wexner Center's Ohio Shorts program, and five other festivals, and won Best Student Film at Festigious.</p>
-      <p><a href="https://www.imdb.com/name/nm5005363/">Full credits on IMDb</a></p>
+    <section class="window contact" aria-labelledby="contact-heading">
+      <div class="titlebar"><span>contact.txt</span><span class="controls" aria-hidden="true"><i>_</i><i>□</i><i>×</i></span></div>
+      <div class="pane">
+        <h2 id="contact-heading">Get in touch</h2>
+        <p>Open to tech roles, including tech in film and media.</p>
+        <p><a class="button" href="mailto:montgomery.k.eryn@gmail.com">montgomery.k.eryn@gmail.com</a></p>
+      </div>
     </section>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p><a href="mailto:montgomery.k.eryn@gmail.com">montgomery.k.eryn@gmail.com</a></p>
-      <p><a href="https://github.com/unlikely-archivist">GitHub</a> · <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a></p>
-    </section>
   </main>
+
+  <footer class="taskbar">
+    <span class="start"><img src="assets/favicon.png" alt="" width="20" height="20"> Unlikely Archivist</span>
+    <nav aria-label="Links">
+      <a href="mailto:montgomery.k.eryn@gmail.com">Email</a>
+      <a href="https://github.com/unlikely-archivist">GitHub</a>
+      <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
+      <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    </nav>
+  </footer>
 
 </body>
 </html>
