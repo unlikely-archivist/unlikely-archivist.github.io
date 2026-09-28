@@ -288,8 +288,34 @@ body {
   line-height: 1.4;
 }
 
+.phone-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.75rem 0;
+}
+.phone-strip figure { margin: 0; }
+.phone-strip img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #d2d2d2;
+  border-radius: 1rem;
+}
+.phone-strip figcaption { margin-top: 0.5rem; color: #555; font-size: 0.85rem; line-height: 1.4; }
+.project-story-split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+
 @media (max-width: 42rem) {
   .project-grid { grid-template-columns: 1fr; }
+  .project-story-split { grid-template-columns: 1fr; }
+  .phone-strip {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 62%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .phone-strip figure { scroll-snap-align: start; }
   .project-result { align-items: flex-start; flex-direction: column; }
 }
 
