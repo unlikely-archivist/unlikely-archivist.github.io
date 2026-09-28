@@ -163,5 +163,75 @@ body {
   object-fit: contain;
 }
 
+/* ---------- contact page ---------- */
+.contact-page {
+  min-height: calc(100vh - 4rem);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding-bottom: 8rem;
+}
+.contact-intro {
+  max-width: 32rem;
+  margin: 1rem 0 2.25rem;
+  color: #555;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.55;
+}
+.contact-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: min(100%, 42rem);
+}
+.form-field { display: flex; flex-direction: column; gap: 0.45rem; }
+.form-field-wide { grid-column: 1 / -1; }
+.form-field label { font-size: 0.85rem; font-weight: 500; }
+.form-field input,
+.form-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #aaa;
+  border-radius: 0;
+  padding: 0.8rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+.form-field textarea { resize: vertical; min-height: 10rem; }
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: 2px solid #9b1c1c;
+  outline-offset: 2px;
+  border-color: #9b1c1c;
+}
+.contact-form button {
+  justify-self: start;
+  border: 0;
+  padding: 0.8rem 1.15rem;
+  background: #9b1c1c;
+  color: #fff;
+  font: 500 1rem "IBM Plex Sans", sans-serif;
+  cursor: pointer;
+}
+.contact-form button:hover { background: #741515; }
+.contact-form button:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
+.form-honeypot { position: absolute; left: -10000px; }
 
+@media (max-width: 34rem) {
+  .contact-form { grid-template-columns: 1fr; }
+  .form-field-wide { grid-column: auto; }
+}
+
+.contact-email {
+  color: #111;
+  font-size: clamp(1.1rem, 4vw, 2rem);
+  font-weight: 500;
+  text-decoration-color: #9b1c1c;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  overflow-wrap: anywhere;
+}
 

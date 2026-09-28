@@ -8,8 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/eryn-portrait-still.png" fetchpriority="high">
-  <link rel="preload" as="image" href="assets/eryn-portrait-anim.gif">
+  <link rel="preload" as="image" href="assets/eryn-portrait-anim.gif" fetchpriority="high">
   <link rel="preload" as="image" href="assets/portrait-frame-inner.png">
   <link rel="preload" as="image" href="assets/portrait-frame-black.png">
   <link rel="stylesheet" href="style.css">
@@ -20,7 +19,7 @@
     <a href="film.html">Film</a>
     <a href="#unlikely-archivist">Unlikely Archivist</a>
     <a href="#art">Art</a>
-    <a href="mailto:montgomery.k.eryn@gmail.com">Contact</a>
+    <a href="contact.html">Contact</a>
   </nav>
 
   <section class="intro">
@@ -44,39 +43,25 @@
     </div>
     <div class="portrait">
       <div class="clip">
-        <img class="portrait-img" src="assets/eryn-portrait-still.png" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
+        <img class="portrait-img" src="assets/eryn-portrait-anim.gif" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
       </div>
       <div class="frame"></div>
     </div>
   </section>
 
   <script>
-    // Portrait laughs on hover (mouse) or tap (touch); stays still for people who prefer reduced motion.
-    const portrait = document.querySelector('.portrait');
-    const img = portrait.querySelector('.portrait-img');
-    const stillSrc = 'assets/eryn-portrait-still.png';
-    const animSrc = 'assets/eryn-portrait-anim.gif';
+    // Animates once on page load and freezes; stays static for prefers-reduced-motion.
+    const portraitImg = document.querySelector('.portrait-img');
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-
-    // Preload animated gif into memory
-    const gifCache = new Image();
-    gifCache.src = animSrc;
-
-    let active = false;
-    const play = () => {
-      if (reduceMotion.matches || active) return;
-      active = true;
-      img.src = animSrc + '?t=' + Date.now();
-    };
-    const stop = () => {
-      if (!active) return;
-      active = false;
-      img.src = stillSrc;
-    };
-
-    portrait.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') play(); });
-    portrait.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') stop(); });
-    portrait.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') active ? stop() : play(); });
+    if (reduceMotion.matches) {
+      portraitImg.src = 'assets/eryn-portrait-still.png';
+    } else {
+      // GIF is encoded to loop=1 (stops on last frame after ~4.87s).
+      // Freeze explicitly on the final frame image when the animation completes.
+      setTimeout(() => {
+        portraitImg.src = 'assets/eryn-portrait-end.png';
+      }, 4900);
+    }
 
     // Place the credits card just under the film link, wherever the line wraps.
     const filmLink = document.querySelector('.film-link');
