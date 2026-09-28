@@ -255,38 +255,30 @@ body {
 .featured-project-full {
   grid-column: 1 / -1;
 }
-.project-media {
-  margin: 1.5rem 0 1.25rem;
-  border: 1px solid #d2d2d2;
-  overflow: hidden;
-  background: #000;
-}
-.project-media img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.project-media-grid {
+/* ---------- art page ---------- */
+.art-page { max-width: 72rem; }
+.art-work {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+  padding: clamp(2rem, 5vw, 3.5rem) 0;
+  border-top: 1px solid #d2d2d2;
 }
-.project-media-grid figure {
-  margin: 0;
+.art-work:first-of-type { margin-top: 2rem; }
+.art-work img { display: block; width: 100%; height: auto; }
+.art-quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.art-work .art-quad img { aspect-ratio: 4 / 3; object-fit: cover; }
+.page .art-text h2 {
+  margin: 0 0 1rem;
+  color: #111;
+  font: 500 clamp(1.7rem, 3vw, 2.4rem)/1.1 "IBM Plex Sans", sans-serif;
+  letter-spacing: -0.03em;
+  text-transform: none;
 }
-.project-media-grid img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid #d2d2d2;
-}
-.project-media-grid figcaption {
-  margin-top: 0.5rem;
-  color: #555;
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
+.art-text p { margin: 0 0 1rem; color: #333; line-height: 1.6; }
+.art-link { color: #111; font-weight: 500; text-decoration-color: #9b1c1c; text-underline-offset: 3px; }
+.art-link:hover { color: #9b1c1c; }
 
 .phone-strip {
   display: grid;
@@ -308,6 +300,7 @@ body {
 @media (max-width: 42rem) {
   .project-grid { grid-template-columns: 1fr; }
   .project-story-split { grid-template-columns: 1fr; }
+  .art-work { grid-template-columns: 1fr; }
   .phone-strip {
     grid-template-columns: none;
     grid-auto-flow: column;
