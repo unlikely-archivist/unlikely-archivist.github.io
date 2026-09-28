@@ -40,13 +40,14 @@
     }
     .intro-text { flex: 0 1 30rem; }
     .intro h1 { margin: 0; font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
-    .blurb { margin: 1.25rem 0 0; font-size: 1.1rem; line-height: 1.55; }
+    .tagline { margin: 1rem 0 0; font-size: 1.25rem; font-weight: 500; }
+    .blurb { margin: 0.75rem 0 0; font-size: 1.1rem; line-height: 1.55; }
     .intro h1 span { display: block; font-family: "UnifrakturMaguntia", serif; font-size: clamp(2.25rem, 5.5vw, 4.4rem); }
 
     /* Framed portrait: three stacked layers. Change these to restyle it. */
     .portrait {
-      --frame-color: #000;
-      --frame-fill: transparent;  /* background inside the frame: any color, gradient, or url() */
+      --frame-color: #9b1c1c;
+      --frame-fill: #000;         /* background inside the frame; black matches the video's background */
       --zoom: 0.7;                /* portrait width relative to the frame's inner width */
 
       position: relative;
@@ -65,8 +66,9 @@
     .portrait .clip { --mask: url(assets/portrait-frame-inner.png); background: var(--frame-fill); }
     .portrait .frame { --mask: url(assets/portrait-frame-black.png); background: var(--frame-color); }
     /* 83.12% = frame's inner width, 49.62% = its center, 7.76% = sits just below its inner bottom edge */
-    .portrait img {
+    .portrait video {
       position: absolute;
+      display: block;
       width: calc(83.12% * var(--zoom));
       left: calc(49.62% - 41.56% * var(--zoom));
       bottom: 7.76%;
@@ -84,12 +86,25 @@
   <section class="intro">
     <div class="intro-text">
       <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
-      <p class="blurb">Formerly a property master in the film industry. When tech took my job, I decided to join the club. Now I'm an independent, self-taught developer, shipping something every day.</p>
+      <p class="tagline">Part Automator, Part Artist</p>
+      <p class="blurb">After a decade in the film industry, the looming threat of an AI takeover motivated me rather than scared me. Now I'm breaking into tech: independent, self-taught, creating solutions and shipping every day.</p>
     </div>
     <div class="portrait">
-      <div class="clip"><img src="assets/eryn-portrait.png" alt="Eryn Montgomery" width="1086" height="1448"></div>
+      <div class="clip"><video src="assets/eryn-laugh.mp4" poster="assets/eryn-laugh-poster.jpg" width="376" height="500" muted loop playsinline preload="auto" role="img" aria-label="Eryn Montgomery"></video></div>
       <div class="frame"></div>
     </div>
   </section>
+
+  <script>
+    // Portrait laughs on hover (mouse) or tap (touch); stays still for people who prefer reduced motion.
+    const portrait = document.querySelector('.portrait');
+    const video = portrait.querySelector('video');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const play = () => { if (!reduceMotion.matches) video.play(); };
+    const stop = () => { video.pause(); video.currentTime = 0; };
+    portrait.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') play(); });
+    portrait.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') stop(); });
+    portrait.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') video.paused ? play() : stop(); });
+  </script>
 </body>
 </html>
