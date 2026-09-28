@@ -8,88 +8,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      background: #fff;
-      color: #111;
-      font-family: "IBM Plex Sans", sans-serif;
-    }
-
-    .topnav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 1.5rem;
-      max-width: 64rem;
-      margin: 0 auto;
-      padding: 1.5rem 1rem;
-    }
-    .topnav a { color: #111; text-decoration: none; font-size: 0.9rem; }
-    .topnav a:hover { text-decoration: underline; }
-
-    .intro {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 3rem;
-      max-width: 64rem;
-      margin: 0 auto;
-      padding: 6rem 1rem 2rem;
-    }
-    .intro-text { flex: 0 1 30rem; }
-    .intro h1 { margin: 0; font-weight: 400; font-size: 1.4rem; line-height: 1.1; }
-    .tagline { margin: 1rem 0 0; font-size: 1.25rem; font-weight: 500; }
-    .blurb { margin: 0.75rem 0 0; font-size: 1.1rem; line-height: 1.55; }
-    .intro h1 span { display: block; font-family: "UnifrakturMaguntia", serif; font-size: clamp(2.25rem, 5.5vw, 4.4rem); }
-
-    /* Framed portrait: three stacked layers. Change these to restyle it.
-       The masks only load over http(s), so opening this file directly shows a blank portrait.
-       Preview locally with: python3 -m http.server  (then open http://localhost:8000) */
-    .portrait {
-      --frame-color: #9b1c1c;
-      --frame-fill: #000;         /* background inside the frame; black matches the video's background */
-      --zoom: 0.7;                /* portrait width relative to the frame's inner width */
-
-      position: relative;
-      flex: 0 1 26rem;
-      width: 100%;
-      max-width: 26rem;
-      aspect-ratio: 1576 / 1624;
-    }
-    .portrait .clip,
-    .portrait .frame {
-      position: absolute;
-      inset: 0;
-      -webkit-mask: var(--mask) center / 100% 100% no-repeat;
-      mask: var(--mask) center / 100% 100% no-repeat;
-    }
-    .portrait .clip { --mask: url(assets/portrait-frame-inner.png); background: var(--frame-fill); }
-    .portrait .frame { --mask: url(assets/portrait-frame-black.png); background: var(--frame-color); }
-    /* 83.12% = frame's inner width, 49.62% = its center, 7.76% = sits just below its inner bottom edge */
-    .portrait video {
-      position: absolute;
-      display: block;
-      width: calc(83.12% * var(--zoom));
-      left: calc(49.62% - 41.56% * var(--zoom));
-      bottom: 7.76%;
-      height: auto;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <nav class="topnav" aria-label="Sections">
-    <a href="#film">Film</a>
+    <a class="home" href="index.html">Eryn Montgomery</a>
+    <a href="film.html">Film</a>
     <a href="#unlikely-archivist">Unlikely Archivist</a>
     <a href="#art">Art</a>
+    <a href="mailto:montgomery.k.eryn@gmail.com">Contact</a>
   </nav>
 
   <section class="intro">
     <div class="intro-text">
       <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
-      <p class="tagline">Part Automator, Part Artist</p>
-      <p class="blurb">After a decade in the film industry, the looming threat of an AI takeover motivated me rather than scared me. Now I'm breaking into tech: independent, self-taught, creating solutions and shipping every day.</p>
+      <div class="blurb-box">
+        <p class="tagline">Part Automator, Part Artist</p>
+        <p class="blurb">After <a class="film-link" href="film.html" aria-describedby="film-card">a decade in the film industry</a>, the looming threat of an AI takeover motivated me rather than scared me. Now I'm breaking into tech: independent, self-taught, creating solutions and shipping every day as <a href="https://github.com/unlikely-archivist">Unlikely Archivist</a>.</p>
+        <div class="film-card" id="film-card">
+          <ul>
+            <li><em>Goons</em> (2024) <span class="role">· Property Master</span></li>
+            <li><em>Chopin</em> (2023) <span class="role">· Property Master</span></li>
+            <li><em>Hitman</em> (2022) <span class="role">· Asst. Propmaster · dir. Richard Linklater</span></li>
+            <li><em>Master Gardener</em> (2022) <span class="role">· Property Master · dir. Paul Schrader</span></li>
+            <li><em>Queen of the South</em> (2020–21) <span class="role">· Propmaster</span></li>
+            <li><em>American Factory</em> (2019) <span class="role">· Addl. Asst. Editor</span><span class="award">Won Best Documentary Feature, 2020 Oscars</span></li>
+          </ul>
+          <a class="more" href="film.html">See full filmography →</a>
+        </div>
+      </div>
     </div>
     <div class="portrait">
       <div class="clip"><video src="assets/eryn-laugh.mp4" poster="assets/eryn-laugh-poster.jpg" width="376" height="500" muted loop playsinline preload="auto" role="img" aria-label="Eryn Montgomery"></video></div>
@@ -107,6 +54,19 @@
     portrait.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') play(); });
     portrait.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') stop(); });
     portrait.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') video.paused ? play() : stop(); });
+
+    // Place the credits card just under the film link, wherever the line wraps.
+    const filmLink = document.querySelector('.film-link');
+    const filmCard = document.querySelector('.film-card');
+    const placeCard = () => {
+      filmCard.style.top = `${filmLink.offsetTop + filmLink.offsetHeight + 6}px`;
+      // start under the link, but shift left if the card would run off the right edge of the window
+      const boxLeft = filmCard.offsetParent.getBoundingClientRect().left;
+      const maxLeft = innerWidth - 16 - boxLeft - filmCard.offsetWidth;
+      filmCard.style.left = `${Math.min(filmLink.offsetLeft, maxLeft)}px`;
+    };
+    filmLink.addEventListener('pointerenter', placeCard);
+    filmLink.addEventListener('focus', placeCard);
   </script>
 </body>
 </html>
