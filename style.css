@@ -17,6 +17,11 @@ body {
 .topnav a { color: #111; text-decoration: none; font-size: 0.9rem; }
 .topnav a:hover, .topnav a[aria-current="page"] { text-decoration: underline; }
 .topnav .home { margin-right: auto; font-weight: 500; }
+/* narrow screens: name on its own row, all five links together below it */
+@media (max-width: 36rem) {
+  .topnav { gap: 0.5rem 1.25rem; }
+  .topnav .home { flex-basis: 100%; }
+}
 
 /* ---------- home: intro ---------- */
 .intro {
@@ -58,6 +63,9 @@ body {
 .home-card span { color: #555; font-size: 0.95rem; line-height: 1.5; }
 .home-card:hover strong { text-decoration: underline; text-decoration-color: #9b1c1c; text-underline-offset: 3px; }
 .home-card:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
+.home-more { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 1.5rem 0 0; }
+.home-more a { color: #111; font-weight: 500; text-decoration-color: #9b1c1c; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.home-more span { color: #555; }
 
 .award { display: block; color: #9b1c1c; }  /* award line under a credit on the film page */
 
@@ -98,7 +106,7 @@ body {
 .page { max-width: 64rem; margin: 0 auto; padding: 4rem 1rem 5rem; }
 /* two columns side by side (Film | Television, Directed | Wright State); one column on small screens */
 .credit-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 0 3rem; }
-.page h1 { margin: 0; font: 400 clamp(2.5rem, 7vw, 4rem)/1.1 "UnifrakturMaguntia", serif; }
+.page h1 { margin: 0; font: 400 clamp(2.5rem, 7vw, 4rem)/1.1 "UnifrakturMaguntia", serif; text-wrap: balance; }
 .page-summary { margin: 0.75rem 0 0; color: #555; line-height: 1.55; }
 .page h2 {
   margin: 2.5rem 0 0.75rem;
@@ -199,6 +207,9 @@ body {
 }
 .project-story h3 { margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 .project-story p { margin: 0; color: #555; font-size: 0.95rem; line-height: 1.5; }
+.project-story p + p { margin-top: 0.75rem; }
+/* case study: the paragraph that follows a rule like "Unsure = alive" */
+.case-note { max-width: 46rem; margin: 0 0 1.75rem; color: #555; font-size: 0.95rem; line-height: 1.5; }
 .project-result { display: flex; align-items: baseline; gap: 0.75rem; margin: 1.75rem 0; }
 .project-result strong { color: #9b1c1c; font-size: clamp(1.75rem, 4vw, 2.75rem); line-height: 1; letter-spacing: -0.04em; }
 .project-result span { max-width: 15rem; color: #555; line-height: 1.4; }
@@ -315,12 +326,18 @@ body {
   padding-bottom: 8rem;
 }
 .contact-intro {
-  max-width: 32rem;
-  margin: 1rem 0 2.25rem;
+  max-width: 36rem;
+  margin: 1rem 0 1.5rem;
   color: #555;
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.55;
 }
+/* clauses stay whole, so the sentence only breaks at the comma */
+.contact-intro span { display: inline-block; }
+.contact-about { max-width: 36rem; margin: 0 0 1.5rem; color: #333; line-height: 1.6; }
+.page .contact-about h2 { margin: 0 0 0.5rem; }
+.contact-about ul { margin: 0; padding-left: 1.2rem; }
+.contact-about li { text-wrap: balance; }
 .contact-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -342,6 +359,7 @@ body {
   font: inherit;
 }
 .form-field textarea { resize: vertical; min-height: 10rem; }
+.form-field textarea::placeholder { text-wrap: balance; }
 .form-field input:focus,
 .form-field textarea:focus {
   outline: 2px solid #9b1c1c;

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Build Systems That Fail Safely · Eryn Montgomery</title>
+  <meta name="description" content="Three stories about systems that failed quietly, and what Eryn Montgomery changed so they fail safely: RIP · URL, a Midjourney userscript, and crierbaby.">
+  <meta property="og:title" content="I Build Systems That Fail Safely · Eryn Montgomery">
+  <meta property="og:description" content="Three stories about systems that failed quietly, and what Eryn Montgomery changed so they fail safely: RIP · URL, a Midjourney userscript, and crierbaby.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://erynmontgomery.com/case-study-failing-safely.html">
+  <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.png" sizes="64x64">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="topnav" aria-label="Sections">
+    <a class="home" href="index.html">Eryn Montgomery</a>
+    <a href="unlikely-archivist.html">Projects</a>
+    <a href="art.html">Art</a>
+    <a href="film.html">Film</a>
+    <a href="resume.html">Résumé</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <main class="page projects-page">
+    <h1>I Build Systems That Fail Safely</h1>
+    <p class="page-summary">The failures that cost the most are the quiet ones: a sync that succeeds with nothing in it, or a pipeline that confidently writes about a company that’s still alive. These three stories share one rule: when a system doesn’t know, it has to say so, and do the safe thing.</p>
+
+    <div class="project-grid">
+    <section class="featured-project featured-project-full" aria-labelledby="ripurl-case-title">
+      <p class="project-kicker">RIP · URL · Autonomous publication</p>
+      <h2 id="ripurl-case-title">An obituary for a website that’s still alive</h2>
+      <p class="project-lead">The pilot wrote obituaries for oracle.com, cranberries.com, and saban.com. All three are still online.</p>
+
+      <div class="project-story project-story-split">
+        <div>
+          <h3>What went wrong</h3>
+          <p>An 11-issue pilot ran unattended from July to September 2026. It chose subjects from Wikidata’s records of dissolved companies and treated a company’s recorded death as proof that its website was dead. Wikidata lists oracle.com as JD Edwards’ website. JD Edwards is gone. Oracle isn’t.</p>
+          <p>Nothing reported an error. Two settings in the pipeline’s Wikipedia request made the API return only the first paragraph of each article, so every pilot issue was written from one paragraph. One issue ran an Internet Archive “Temporarily Offline” error page as its main image.</p>
+        </div>
+        <div>
+          <h3>What I changed</h3>
+          <p>I retired the pilot and rebuilt it around gates that run before anything is written. A candidate must pass five checks, cheapest first: the domain matches the company’s name, the company has a documented history, it lived on the web, its URL is checked live today, and the Internet Archive holds at least a year of captures.</p>
+          <p>The writer sees only the evidence the pipeline fetched and must refuse rather than pad. A separate fact-check audits every draft, and on its first real draft it found seven unsupported claims. Flagged claims get a surgical revision, because full rewrites fixed old errors and invented new ones.</p>
+        </div>
+      </div>
+
+      <p class="project-result"><strong>Unsure = alive</strong><span>A bot wall, a server error, or an unreadable page disqualifies the candidate.</span></p>
+      <p class="case-note">Skipping a real dead site costs one candidate. An obituary for a living one costs the publication its credibility. Offline tests fake every kind of response (parked pages, bot walls, redirect loops) on every push, and the pilot’s three mistakes are a permanent regression check.</p>
+
+      <div class="project-actions">
+        <a class="project-cta" href="https://ripurl.val.run">Visit RIP · URL →</a>
+        <a class="project-secondary" href="https://github.com/unlikely-archivist/ripurl/blob/main/tests/liveness.test.ts">Read the liveness tests →</a>
+        <a class="project-secondary" href="https://github.com/unlikely-archivist/ripurl/blob/main/val/scripts/check_liveness.ts">Read the pilot regression check →</a>
+      </div>
+    </section>
+
+    <section class="featured-project featured-project-full" aria-labelledby="userscript-case-title">
+      <p class="project-kicker">Userscript · Midjourney · Val Town</p>
+      <h2 id="userscript-case-title">A sync that succeeded with nothing in it</h2>
+      <p class="project-lead">After a Midjourney update, my userscript kept syncing. Every row arrived with its IDs and images, and with the prompt and parameters empty.</p>
+
+      <div class="project-story project-story-split">
+        <div>
+          <h3>What went wrong</h3>
+          <p>I log my own Midjourney generations to a database on Val Town with a userscript that reads them off the page. An update changed the page’s layout. The selectors for the prompt and parameters matched nothing, but the ones for job links and images still worked, so every sync succeeded.</p>
+          <p>The rows said <code>raw: false</code>, which looked exactly like a prompt written without <code>--raw</code>. The suggested fix, from the AI assistant I was debugging with, was a sturdier selector plus a warning when a card had no parameters. I asked how that warning would tell “no <code>--raw</code>” from “looked in the wrong place.” It couldn’t. A true-or-false field has no room for “I don’t know,” so every <code>false</code> in that data really meant unknown.</p>
+        </div>
+        <div>
+          <h3>What I found</h3>
+          <p>I spent two hours in the web inspector. The update had split each card, so the prompt and its parameters no longer share an element, and no selector can join them again. But the page loads each job as one data object: prompt, parameters, timestamps, and image dimensions together.</p>
+          <p>Reading that object instead of the page makes absence mean something: if <code>--raw</code> isn’t in the record of my own job, I didn’t use it. I drew a line on how to get it: only data my browser already received for my own account. Midjourney has no public API, and I take that as a reason not to query its servers myself. The fix is designed, not shipped yet.</p>
+        </div>
+      </div>
+
+      <p class="project-result"><strong>Unknown ≠ false</strong><span>A field that can only say yes or no will record “didn’t look” as “no.”</span></p>
+    </section>
+
+    <section class="featured-project featured-project-full" aria-labelledby="crierbaby-case-title">
+      <p class="project-kicker">crierbaby · Cloudflare Workers · Bluesky</p>
+      <h2 id="crierbaby-case-title">Never post twice, never post unapproved</h2>
+      <p class="project-lead">A scheduler that posts to a real account has two failures that can’t be undone: a duplicate post, and a post nobody approved.</p>
+
+      <div class="project-story project-story-split">
+        <div>
+          <h3>Never twice</h3>
+          <p>Before posting, the worker claims the post in the database, so two runs, or the timer and a “post now” tap, can’t both send it. If an attempt dies partway, Bluesky may have published the post and lost the reply. So a retry doesn’t just post again. It re-uploads the photos, which produces the same content IDs, and looks for a recent post with a match. It matches photos, not captions, because short captions like ✨ repeat. After three failed tries, the post stops and shows as “didn’t post.”</p>
+        </div>
+        <div>
+          <h3>Never unapproved</h3>
+          <p>Only approved posts are ever due, and auto-posting ships paused. A vision model writes captions in the background, and its result only lands if the post is still waiting for one: if I approved, edited, or deleted it in the meantime, my version wins. Spacing out look-alike photos only ever rearranges unapproved drafts.</p>
+        </div>
+      </div>
+
+      <p class="project-result"><strong>Check, then retry</strong><span>When you can’t tell whether something happened, find out before doing it again.</span></p>
+      <p class="project-pipeline" aria-label="crierbaby retry sequence">claim <span>→</span> post <span>→</span> reply lost <span>→</span> retry: look for it by its photos <span>→</span> post only if missing</p>
+
+      <p class="case-note">Tests fake Bluesky and cover both sides: an older post with the same caption isn’t mistaken for this one, and an earlier attempt that went through is found and not repeated.</p>
+
+      <div class="project-actions">
+        <a class="project-cta" href="https://github.com/unlikely-archivist/crierbaby">Explore crierbaby on GitHub →</a>
+        <a class="project-secondary" href="https://github.com/unlikely-archivist/crierbaby/blob/main/test/bluesky.test.js">Read the retry tests →</a>
+      </div>
+    </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <a href="https://github.com/unlikely-archivist">GitHub</a>
+    <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
+    <a href="https://substack.com/@unlikelyarchivist">Substack</a>
+    <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    <a href="contact.html">Contact</a>
+  </footer>
+</body>
+</html>
