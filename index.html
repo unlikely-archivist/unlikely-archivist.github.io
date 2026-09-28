@@ -44,7 +44,9 @@
     .blurb { margin: 0.75rem 0 0; font-size: 1.1rem; line-height: 1.55; }
     .intro h1 span { display: block; font-family: "UnifrakturMaguntia", serif; font-size: clamp(2.25rem, 5.5vw, 4.4rem); }
 
-    /* Framed portrait: three stacked layers. Change these to restyle it. */
+    /* Framed portrait: three stacked layers. Change these to restyle it.
+       The masks only load over http(s), so opening this file directly shows a blank portrait.
+       Preview locally with: python3 -m http.server  (then open http://localhost:8000) */
     .portrait {
       --frame-color: #9b1c1c;
       --frame-fill: #000;         /* background inside the frame; black matches the video's background */
