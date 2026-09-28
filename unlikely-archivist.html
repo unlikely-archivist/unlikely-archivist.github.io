@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unlikely Archivist · Eryn Montgomery</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="topnav" aria-label="Sections">
+    <a class="home" href="index.html">Eryn Montgomery</a>
+    <a href="film.html">Film</a>
+    <a href="unlikely-archivist.html" aria-current="page">Unlikely Archivist</a>
+    <a href="art.html">Art</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <main class="page projects-page">
+    <h1>Unlikely Archivist</h1>
+    <p class="page-summary">Independent tools built to solve the problems I run into.</p>
+
+    <div class="project-grid">
+    <section class="featured-project" aria-labelledby="flatpack-title">
+      <p class="project-kicker">Obsidian tool · Templater</p>
+      <h2 id="flatpack-title">Flatpack</h2>
+      <p class="project-lead">Turn a tangled Obsidian vault into one clean, portable document—without copying the same embedded note over and over.</p>
+
+      <div class="project-story">
+        <div>
+          <h3>The problem</h3>
+          <p>Easy Bake combines an Obsidian vault, but heavily cross-embedded notes can echo throughout the result. Shared content gets duplicated until the master document is too bloated to be useful.</p>
+        </div>
+        <div>
+          <h3>The smarter approach</h3>
+          <p>Flatpack keeps the first copy of an embedded note, replaces repeats with a one-line pointer, and turns the original folder structure into a readable heading hierarchy.</p>
+        </div>
+      </div>
+
+      <p class="project-result"><strong>104,000 → 9,700</strong><span>lines in a real test vault, with the information intact.</span></p>
+
+      <a class="project-cta" href="https://github.com/unlikely-archivist/Flatpack">Explore Flatpack on GitHub →</a>
+    </section>
+
+    <section class="featured-project" aria-labelledby="ripurl-title">
+      <p class="project-kicker">Autonomous publication · Val Town · TypeScript</p>
+      <h2 id="ripurl-title">RIP · URL</h2>
+      <p class="project-lead">A weekly obituary for dead websites—written by a machine held to an archivist’s rules.</p>
+
+      <div class="project-story">
+        <div>
+          <h3>The risk</h3>
+          <p>Left unsupervised, an AI writer can choose a living company, fill gaps from memory, or turn guesses into confident history. For a publication about real companies, “usually right” isn’t good enough.</p>
+        </div>
+        <div>
+          <h3>The system</h3>
+          <p>A TypeScript state machine discovers a candidate, proves its URL is dead, assembles primary evidence and an archived screenshot, then independently fact-checks every draft before publication.</p>
+        </div>
+      </div>
+
+      <p class="project-pipeline" aria-label="RIP URL publishing pipeline">discover <span>→</span> vet <span>→</span> evidence <span>→</span> screenshot <span>→</span> write <span>→</span> verify <span>→</span> publish</p>
+
+      <div class="project-actions">
+        <a class="project-cta" href="https://ripurl.val.run">Visit RIP · URL →</a>
+        <a class="project-secondary" href="https://ripurl.val.run/about">See how it works →</a>
+      </div>
+    </section>
+
+    <section class="featured-project" aria-labelledby="browser-tools-title">
+      <p class="project-kicker">Creative coding · Browser tools</p>
+      <h2 id="browser-tools-title">Creative Browser Tools</h2>
+      <p class="project-lead">Small, focused tools for extracting color and introducing intentional digital decay.</p>
+
+      <div class="tool-links">
+        <a href="https://bloodnbinary.neocities.org/tools/color-palette/">
+          <strong>Palette Maker</strong>
+          <span>Build a palette from scratch or pull colors directly from a photograph.</span>
+          <span class="tool-link-label">Open tool →</span>
+        </a>
+        <a href="https://bloodnbinary.neocities.org/tools/image-degrader/">
+          <strong>Image Degrader</strong>
+          <span>Rot an image with real resampling, color reduction, chroma bleed, and JPEG generation loss.</span>
+          <span class="tool-link-label">Open tool →</span>
+        </a>
+      </div>
+    </section>
+    </div>
+  </main>
+</body>
+</html>
