@@ -6,6 +6,15 @@
   <title>Eryn Montgomery</title>
   <link rel="icon" href="assets/favicon.png">
   <style>
+    .topnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      max-width: 64rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
     .intro {
       display: flex;
       flex-wrap: wrap;
@@ -14,15 +23,52 @@
       gap: 2rem;
       max-width: 64rem;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 6rem 1rem 2rem;
     }
-    .intro img { width: 100%; max-width: 26rem; height: auto; }
+
+    /* Framed portrait: three stacked layers. Change these to restyle it. */
+    .portrait {
+      --frame-color: #000;
+      --frame-fill: transparent;  /* background inside the frame: any color, gradient, or url() */
+      --zoom: 0.7;                /* portrait width relative to the frame's inner width */
+
+      position: relative;
+      width: 100%;
+      max-width: 26rem;
+      aspect-ratio: 1576 / 1624;
+    }
+    .portrait .clip,
+    .portrait .frame {
+      position: absolute;
+      inset: 0;
+      -webkit-mask: var(--mask) center / 100% 100% no-repeat;
+      mask: var(--mask) center / 100% 100% no-repeat;
+    }
+    .portrait .clip { --mask: url(assets/portrait-frame-inner.png); background: var(--frame-fill); }
+    .portrait .frame { --mask: url(assets/portrait-frame-black.png); background: var(--frame-color); }
+    /* 83.12% = frame's inner width, 49.62% = its center, 7.76% = sits just below its inner bottom edge */
+    .portrait img {
+      position: absolute;
+      width: calc(83.12% * var(--zoom));
+      left: calc(49.62% - 41.56% * var(--zoom));
+      bottom: 7.76%;
+      height: auto;
+    }
   </style>
 </head>
 <body>
+  <nav class="topnav" aria-label="Sections">
+    <a href="#film">Film</a>
+    <a href="#unlikely-archivist">Unlikely Archivist</a>
+    <a href="#art">Art</a>
+  </nav>
+
   <section class="intro">
     <h1>Hi, I'm Eryn Montgomery</h1>
-    <img src="assets/eryn-portrait-framed.png" alt="Eryn Montgomery" width="1576" height="1624">
+    <div class="portrait">
+      <div class="clip"><img src="assets/eryn-portrait.png" alt="Eryn Montgomery" width="1086" height="1448"></div>
+      <div class="frame"></div>
+    </div>
   </section>
 </body>
 </html>
