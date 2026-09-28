@@ -21,7 +21,7 @@ body {
 /* ---------- home: intro ---------- */
 .intro {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;  /* portrait stays beside the text; stacks only on phones (see the 42rem query) */
   align-items: center;
   justify-content: center;
   gap: 3rem;
@@ -46,6 +46,7 @@ body {
 .home-card { grid-column: span 2; }
 .home-card:nth-child(n+4) { grid-column: span 3; }
 @media (max-width: 42rem) {
+  .intro { flex-wrap: wrap; }
   .home-cards { grid-template-columns: 1fr; }
   .home-card, .home-card:nth-child(n+4) { grid-column: auto; }
 }
