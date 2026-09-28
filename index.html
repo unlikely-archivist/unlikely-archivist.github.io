@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eryn Montgomery</title>
+  <meta name="description" content="Eryn Montgomery builds automation and AI tools after a decade in film: a self-fact-checking publication, a photo scheduler that writes its own captions, and more.">
+  <meta property="og:title" content="Eryn Montgomery">
+  <meta property="og:description" content="Eryn Montgomery builds automation and AI tools after a decade in film: a self-fact-checking publication, a photo scheduler that writes its own captions, and more.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://erynmontgomery.com/">
+  <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,36 +23,44 @@
 <body>
   <nav class="topnav" aria-label="Sections">
     <a class="home" href="index.html">Eryn Montgomery</a>
-    <a href="film.html">Film</a>
-    <a href="unlikely-archivist.html">Unlikely Archivist</a>
+    <a href="unlikely-archivist.html">Projects</a>
     <a href="art.html">Art</a>
+    <a href="film.html">Film</a>
     <a href="contact.html">Contact</a>
   </nav>
 
   <section class="intro">
     <div class="intro-text">
-      <h1>Hi, I'm <span>Eryn Montgomery</span></h1>
-      <div class="blurb-box">
-        <p class="tagline">Part Automator, Part Artist</p>
-        <p class="blurb">After <a class="film-link" href="film.html" aria-describedby="film-card">a decade in the film industry</a>, the looming threat of an AI takeover motivated me rather than scared me. Now I'm breaking into tech: independent, self-taught, creating solutions and shipping every day as <a href="unlikely-archivist.html">Unlikely Archivist</a>.</p>
-        <div class="film-card" id="film-card">
-          <ul>
-            <li><em>Goons</em> (2024) <span class="role">· Property Master</span></li>
-            <li><em>Chopin</em> (2023) <span class="role">· Property Master</span></li>
-            <li><em>Hitman</em> (2022) <span class="role">· Asst. Propmaster · dir. Richard Linklater</span></li>
-            <li><em>Master Gardener</em> (2022) <span class="role">· Property Master · dir. Paul Schrader</span></li>
-            <li><em>Queen of the South</em> (2020–21) <span class="role">· Propmaster</span></li>
-            <li><em>American Factory</em> (2019) <span class="role">· Addl. Asst. Editor</span><span class="award">Won Best Documentary Feature, 2020 Oscars</span></li>
-          </ul>
-          <a class="more" href="film.html">See full filmography →</a>
-        </div>
-      </div>
+      <h1><span>Eryn Montgomery</span></h1>
+      <p class="tagline">Part Automator, Part Artist</p>
+      <p class="pitch">I build automation and AI tools that run on their own.</p>
+      <p class="blurb">A weekly publication that researches, fact-checks, and publishes itself. A photo scheduler that writes its own captions and waits for approval. A tool that cut a 104,000-line document to 9,700.</p>
+      <p class="blurb">Before this, I spent a decade in film, running prop departments on features like <em>Master Gardener</em> and <em>Goons</em>, and worked on the Oscar-winning documentary <em>American Factory</em>. When AI started coming for film jobs, I started building with it.</p>
+      <p class="intro-links"><a href="unlikely-archivist.html">See the projects →</a> <a href="film.html">Film credits →</a></p>
     </div>
     <div class="portrait">
       <div class="clip">
         <img class="portrait-img" src="assets/eryn-portrait-anim.gif" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
       </div>
       <div class="frame"></div>
+    </div>
+  </section>
+
+  <section class="home-projects" aria-labelledby="home-projects-title">
+    <h2 id="home-projects-title">Selected projects</h2>
+    <div class="home-cards">
+      <a class="home-card" href="unlikely-archivist.html#ripurl-title">
+        <strong>RIP · URL</strong>
+        <span>A weekly obituary for a dead website. A TypeScript state machine finds it, proves it’s dead, gathers evidence, writes the piece, and fact-checks every draft before it publishes.</span>
+      </a>
+      <a class="home-card" href="unlikely-archivist.html#crierbaby-title">
+        <strong>crierbaby</strong>
+        <span>A self-hosted Bluesky photo scheduler on Cloudflare Workers. A vision model drafts captions and alt text, and nothing posts without approval.</span>
+      </a>
+      <a class="home-card" href="unlikely-archivist.html#flatpack-title">
+        <strong>Flatpack</strong>
+        <span>Turns a tangled Obsidian vault into one clean document. On a real vault: 104,000 lines down to 9,700, with nothing lost.</span>
+      </a>
     </div>
   </section>
 
@@ -62,19 +77,12 @@
         portraitImg.src = 'assets/eryn-portrait-end.png';
       }, 4900);
     }
-
-    // Place the credits card just under the film link, wherever the line wraps.
-    const filmLink = document.querySelector('.film-link');
-    const filmCard = document.querySelector('.film-card');
-    const placeCard = () => {
-      filmCard.style.top = `${filmLink.offsetTop + filmLink.offsetHeight + 6}px`;
-      // start under the link, but shift left if the card would run off the right edge of the window
-      const boxLeft = filmCard.offsetParent.getBoundingClientRect().left;
-      const maxLeft = innerWidth - 16 - boxLeft - filmCard.offsetWidth;
-      filmCard.style.left = `${Math.min(filmLink.offsetLeft, maxLeft)}px`;
-    };
-    filmLink.addEventListener('pointerenter', placeCard);
-    filmLink.addEventListener('focus', placeCard);
   </script>
+  <footer class="site-footer">
+    <a href="https://github.com/unlikely-archivist">GitHub</a>
+    <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
+    <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    <a href="contact.html">Contact</a>
+  </footer>
 </body>
 </html>
