@@ -34,11 +34,25 @@
   <main class="page projects-page" id="main">
     <h1>Projects</h1>
     <p class="page-summary">Things I built because I needed them and they didn’t exist yet. I ship them as Unlikely Archivist.</p>
-    <p class="page-summary"><a class="project-secondary" href="case-study-failing-safely.html">How I build systems that fail safely →</a></p>
+
+    <a class="case-study-banner" href="case-study-failing-safely.html">
+      <div class="case-study-banner-text">
+        <span class="case-study-badge">Featured Case Study</span>
+        <strong>How I build systems that fail safely →</strong>
+        <span>Three systems that failed quietly, and what I changed so they’d speak up.</span>
+      </div>
+      <span class="case-study-banner-action">Read study →</span>
+    </a>
 
     <div class="project-grid">
     <section class="featured-project" aria-labelledby="flatpack-title">
       <p class="project-kicker">Obsidian tool · Templater</p>
+      <div class="tech-stack-pills">
+        <span class="tech-pill">Obsidian</span>
+        <span class="tech-pill">Templater</span>
+        <span class="tech-pill">JavaScript</span>
+        <span class="tech-pill">Markdown AST</span>
+      </div>
       <h2 id="flatpack-title">Flatpack</h2>
       <p class="project-lead">Export one note or your whole Obsidian vault as a single document, with every embedded note included once.</p>
 
@@ -55,11 +69,18 @@
 
       <p class="project-result"><strong>104,000 → 9,700</strong><span>lines in my own vault: Easy Bake vs. Flatpack.</span></p>
 
-      <a class="project-cta" href="https://github.com/unlikely-archivist/Flatpack">Explore Flatpack on GitHub →</a>
+      <a class="project-cta" href="https://github.com/unlikely-archivist/Flatpack" target="_blank" rel="noopener noreferrer">Explore Flatpack on GitHub →</a>
     </section>
 
     <section class="featured-project" aria-labelledby="ripurl-title">
       <p class="project-kicker">Autonomous publication · Val Town · TypeScript</p>
+      <div class="tech-stack-pills">
+        <span class="tech-pill">TypeScript</span>
+        <span class="tech-pill">Val Town</span>
+        <span class="tech-pill">Claude Opus</span>
+        <span class="tech-pill">State Machine</span>
+        <span class="tech-pill">CI Testing</span>
+      </div>
       <h2 id="ripurl-title">RIP · URL</h2>
       <p class="project-lead">A weekly obituary newsletter for dead domain names and the stories of their downfalls. It runs itself, so it has to fact-check itself.</p>
 
@@ -74,24 +95,54 @@
         </div>
       </div>
 
-      <p class="project-pipeline" aria-label="RIP URL publishing pipeline">discover <span>→</span> vet <span>→</span> evidence <span>→</span> screenshot <span>→</span> write <span>→</span> verify <span>→</span> publish</p>
+      <div class="project-pipeline" aria-label="RIP URL publishing pipeline">
+        <span class="pipeline-step">1. Discover</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">2. Liveness Gate</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">3. Primary Evidence</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">4. Archive Shot</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">5. Claude Opus Write</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">6. Fact Audit</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">7. Publish</span>
+      </div>
 
       <div class="project-actions">
-        <a class="project-cta" href="https://ripurl.val.run">Visit RIP · URL →</a>
-        <a class="project-secondary" href="https://ripurl.val.run/about">See how it works →</a>
-        <a class="project-secondary" href="https://github.com/unlikely-archivist/ripurl">Read the code on GitHub →</a>
+        <a class="project-cta" href="https://ripurl.val.run" target="_blank" rel="noopener noreferrer">Visit RIP · URL →</a>
+        <a class="project-secondary" href="https://ripurl.val.run/about" target="_blank" rel="noopener noreferrer">See how it works →</a>
+        <a class="project-secondary" href="https://github.com/unlikely-archivist/ripurl" target="_blank" rel="noopener noreferrer">Read the code on GitHub →</a>
       </div>
     </section>
 
     <section class="featured-project featured-project-full" aria-labelledby="crierbaby-title">
       <p class="project-kicker">Photo scheduler · Cloudflare Workers · Vision AI</p>
+      <div class="tech-stack-pills">
+        <span class="tech-pill">Cloudflare Workers</span>
+        <span class="tech-pill">Vision AI</span>
+        <span class="tech-pill">D1 SQLite</span>
+        <span class="tech-pill">Bluesky API</span>
+        <span class="tech-pill">Automated Tests</span>
+      </div>
       <h2 id="crierbaby-title">crierbaby</h2>
       <p class="project-lead">Dump your photos in, tell it how you talk, and approve a batch every few weeks. It writes the captions and alt text and posts on schedule.</p>
 
       <div class="phone-strip">
-        <figure><img src="assets/crierbaby/crierbaby-queue.webp" width="480" height="1039" loading="lazy" alt="Queue of upcoming posts with approve, delete, and reroll buttons"><figcaption>Queue: approve or reroll</figcaption></figure>
-        <figure><img src="assets/crierbaby/crierbaby-edit-post.webp" width="480" height="1039" loading="lazy" alt="Editing a post with alternative AI-written captions to choose from"><figcaption>Pick from AI captions</figcaption></figure>
-        <figure><img src="assets/crierbaby/crierbaby-caption-writer.webp" width="480" height="1039" loading="lazy" alt="Caption writer screen with plain-language voice instructions"><figcaption>Set the voice in plain words</figcaption></figure>
+        <figure>
+          <div class="phone-device"><img src="assets/crierbaby/crierbaby-queue.webp" width="480" height="1039" loading="lazy" alt="Queue of upcoming posts with approve, delete, and reroll buttons"></div>
+          <figcaption>Queue: approve or reroll</figcaption>
+        </figure>
+        <figure>
+          <div class="phone-device"><img src="assets/crierbaby/crierbaby-edit-post.webp" width="480" height="1039" loading="lazy" alt="Editing a post with alternative AI-written captions to choose from"></div>
+          <figcaption>Pick from AI captions</figcaption>
+        </figure>
+        <figure>
+          <div class="phone-device"><img src="assets/crierbaby/crierbaby-caption-writer.webp" width="480" height="1039" loading="lazy" alt="Caption writer screen with plain-language voice instructions"></div>
+          <figcaption>Set the voice in plain words</figcaption>
+        </figure>
       </div>
 
       <div class="project-story project-story-split">
@@ -105,26 +156,62 @@
         </div>
       </div>
 
-      <p class="project-pipeline" aria-label="crierbaby posting pipeline">stash <span>→</span> caption <span>→</span> approve <span>→</span> schedule <span>→</span> post</p>
+      <div class="project-pipeline" aria-label="crierbaby posting pipeline">
+        <span class="pipeline-step">Photo Stash</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Vision Captioning</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Tone Check</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">User Approval</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Schedule</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Idempotent Post</span>
+      </div>
 
-      <a class="project-cta" href="https://github.com/unlikely-archivist/crierbaby">Explore crierbaby on GitHub →</a>
+      <a class="project-cta" href="https://github.com/unlikely-archivist/crierbaby" target="_blank" rel="noopener noreferrer">Explore crierbaby on GitHub →</a>
     </section>
 
     <section class="featured-project featured-project-full" aria-labelledby="browser-tools-title">
       <p class="project-kicker">Creative coding · Browser tools</p>
+      <div class="tech-stack-pills">
+        <span class="tech-pill">JavaScript</span>
+        <span class="tech-pill">HTML5 Canvas</span>
+        <span class="tech-pill">Color Math</span>
+        <span class="tech-pill">Image Processing</span>
+      </div>
       <h2 id="browser-tools-title">Creative Browser Tools</h2>
       <p class="project-lead">Browser tools for design that I wished existed: one pulls colors out of a photo, the other rots an image on purpose.</p>
 
       <div class="tool-links">
-        <a href="https://bloodnbinary.neocities.org/tools/color-palette/">
-          <strong>Palette Maker</strong>
-          <span>Build a palette from scratch or pull colors directly from a photograph.</span>
-          <span class="tool-link-label">Open tool →</span>
+        <a class="tool-card" href="https://bloodnbinary.neocities.org/tools/color-palette/" target="_blank" rel="noopener noreferrer">
+          <div>
+            <strong>Palette Maker</strong>
+            <p>Build a palette from scratch or pull colors directly from a photograph with perceptual clustering.</p>
+            <div class="tool-palette-swatches">
+              <div class="tool-swatch" style="background: #181617;" title="#181617"></div>
+              <div class="tool-swatch" style="background: #9b1c1c;" title="#9b1c1c"></div>
+              <div class="tool-swatch" style="background: #d48c46;" title="#d48c46"></div>
+              <div class="tool-swatch" style="background: #e8cda2;" title="#e8cda2"></div>
+              <div class="tool-swatch" style="background: #4a5240;" title="#4a5240"></div>
+            </div>
+          </div>
+          <div class="tool-card-footer">
+            <span class="tool-pill">Canvas · Color Extraction</span>
+            <span class="tool-link-label">Open tool →</span>
+          </div>
         </a>
-        <a href="https://bloodnbinary.neocities.org/tools/image-degrader/">
-          <strong>Image Degrader</strong>
-          <span>Rot an image with real resampling, color reduction, chroma bleed, and JPEG generation loss.</span>
-          <span class="tool-link-label">Open tool →</span>
+        <a class="tool-card" href="https://bloodnbinary.neocities.org/tools/image-degrader/" target="_blank" rel="noopener noreferrer">
+          <div>
+            <strong>Image Degrader</strong>
+            <p>Rot an image with real destructive resampling, color reduction, chroma bleed, and JPEG generation loss.</p>
+            <div class="tool-degrade-preview"></div>
+          </div>
+          <div class="tool-card-footer">
+            <span class="tool-pill">Pixel Resampling · Bit Depth</span>
+            <span class="tool-link-label">Open tool →</span>
+          </div>
         </a>
       </div>
     </section>
