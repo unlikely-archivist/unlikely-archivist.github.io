@@ -31,7 +31,7 @@
 
   <main class="page projects-page">
     <h1>I Build Systems That Fail Safely</h1>
-    <p class="page-summary">The failures that cost the most are the quiet ones: a sync that succeeds with nothing in it, or a pipeline that confidently writes about a company that’s still alive. These three stories share one rule: when a system doesn’t know, it has to say so, and do the safe thing.</p>
+    <p class="page-summary">The failures that hurt most are the quiet ones. A sync that succeeds with nothing in it. A newsletter that confidently buries a company that’s still alive. All three of these stories end with the same rule: when a system doesn’t know, it has to say so, and then do the safe thing.</p>
 
     <div class="project-grid">
     <section class="featured-project featured-project-full" aria-labelledby="ripurl-case-title">
@@ -65,13 +65,13 @@
     <section class="featured-project featured-project-full" aria-labelledby="userscript-case-title">
       <p class="project-kicker">Userscript · Midjourney · Val Town</p>
       <h2 id="userscript-case-title">A sync that succeeded with nothing in it</h2>
-      <p class="project-lead">After a Midjourney update, my userscript kept syncing. Every row arrived with its IDs and images, and with the prompt and parameters empty.</p>
+      <p class="project-lead">After a Midjourney update, my userscript kept syncing like nothing happened. Every row arrived with its IDs and images. The prompt and parameters were empty.</p>
 
       <div class="project-story project-story-split">
         <div>
           <h3>What went wrong</h3>
           <p>I log my own Midjourney generations to a database on Val Town with a userscript that reads them off the page. An update changed the page’s layout. The selectors for the prompt and parameters matched nothing, but the ones for job links and images still worked, so every sync succeeded.</p>
-          <p>The rows said <code>raw: false</code>, which looked exactly like a prompt written without <code>--raw</code>. The suggested fix, from the AI assistant I was debugging with, was a sturdier selector plus a warning when a card had no parameters. I asked how that warning would tell “no <code>--raw</code>” from “looked in the wrong place.” It couldn’t. A true-or-false field has no room for “I don’t know,” so every <code>false</code> in that data really meant unknown.</p>
+          <p>The rows said <code>raw: false</code>, which looked exactly like a prompt written without <code>--raw</code>. The AI assistant I was debugging with suggested a sturdier selector plus a warning when a card had no parameters. I asked how that warning would tell “no <code>--raw</code>” from “looked in the wrong place.” It couldn’t. A true-or-false field has no room for “I don’t know,” so every <code>false</code> in that data really meant unknown.</p>
         </div>
         <div>
           <h3>What I found</h3>

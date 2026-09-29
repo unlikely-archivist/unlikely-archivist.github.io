@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eryn Montgomery · Creative Technologist &amp; Automation Engineer</title>
-  <meta name="description" content="Creative technologist and automation engineer. Eryn Montgomery builds automation, browser applications, human-supervised AI systems, and interactive fictional worlds.">
-  <meta property="og:title" content="Eryn Montgomery · Creative Technologist &amp; Automation Engineer">
-  <meta property="og:description" content="Creative technologist and automation engineer. Eryn Montgomery builds automation, browser applications, human-supervised AI systems, and interactive fictional worlds.">
+  <title>Eryn Montgomery · Creative Technologist</title>
+  <meta name="description" content="Creative technologist. Eryn Montgomery builds automations, fictional worlds, browser applications, and more.">
+  <meta property="og:title" content="Eryn Montgomery · Creative Technologist">
+  <meta property="og:description" content="Creative technologist. Eryn Montgomery builds automations, fictional worlds, browser applications, and more.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://erynmontgomery.com/">
   <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://erynmontgomery.com/">
   <link rel="icon" href="assets/favicon.png" sizes="64x64">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="preload" href="assets/fonts/lombarduerer.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="assets/eryn-portrait-anim.gif" fetchpriority="high">
   <link rel="preload" as="image" href="assets/portrait-frame-inner.png">
@@ -23,8 +24,9 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <nav class="topnav" aria-label="Sections">
-    <a class="home" href="index.html">Eryn Montgomery</a>
+    <a class="home" href="index.html" aria-current="page">Eryn Montgomery</a>
     <a href="unlikely-archivist.html">Projects</a>
     <a href="art.html">Art</a>
     <a href="film.html">Film</a>
@@ -32,13 +34,18 @@
     <a href="contact.html">Contact</a>
   </nav>
 
-  <section class="intro">
+  <section class="intro" id="main">
     <h1><span>Eryn Montgomery</span></h1>
+    <div class="portrait">
+      <div class="clip">
+        <img class="portrait-img" src="assets/eryn-portrait-anim.gif" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
+      </div>
+      <div class="frame"></div>
+    </div>
+    <p class="tagline">Creative Technologist</p>
     <div class="intro-text">
-      <p class="tagline"><span>Creative Technologist &amp;</span> <span>Automation Engineer</span></p>
-      <p class="pitch"><span>I build things with code.</span> <span><span>Some useful,</span> <span>some for entertainment.</span></span></p>
-      <p class="blurb">Automation, browser applications, human-supervised AI systems, and interactive fictional worlds. My recent work includes a publication that researches, fact-checks, and publishes itself; a social media scheduler that drafts its own captions and never posts without approval; and tools for creative design.</p>
-      <p class="blurb">Before this, I spent a decade running <a class="film-link" href="film.html" aria-describedby="film-card">prop departments in the film industry</a>, managing budgets, crews, vendors, and deadlines, but most importantly <em>anticipating what other people were going to want or do, and what could possibly go wrong.</em> I bring that same lens to technology: identify potential problems, anticipate behavior (human and machine), and cover my @$$.</p>
+      <p class="blurb">I build automations, fictional worlds, browser applications, and more. My recent work includes a newsletter that writes, fact-checks, and publishes itself; a social media scheduler whose captions sound like you; and browser tools for design that I wished existed.</p>
+      <p class="blurb">I’ve spent a decade in the film industry running <a class="film-link" href="film.html" aria-haspopup="true">prop departments</a>, so I’m excellent with budgets, deadlines, and teamwork. However, the true talent I carry over is <strong>anticipating the next request, problem, or outcome</strong>, and always being ready for it.</p>
       <div class="film-card" id="film-card">
         <ul>
           <li><em>Goons</em> (2024) <span class="role">· Property Master</span></li>
@@ -52,12 +59,6 @@
       </div>
       <p class="intro-links"><a href="unlikely-archivist.html">See the projects →</a> <a href="film.html">Film credits →</a></p>
     </div>
-    <div class="portrait">
-      <div class="clip">
-        <img class="portrait-img" src="assets/eryn-portrait-anim.gif" alt="Eryn Montgomery" width="378" height="500" fetchpriority="high">
-      </div>
-      <div class="frame"></div>
-    </div>
   </section>
 
   <section class="home-projects" aria-labelledby="home-projects-title">
@@ -66,12 +67,12 @@
       <a class="home-card" href="unlikely-archivist.html#ripurl-title">
         <img class="card-preview" src="assets/ripurl-home.webp" alt="" width="860" height="538" loading="lazy">
         <strong>RIP · URL</strong>
-        <span>A weekly obituary for a dead website. A TypeScript state machine finds it, checks that it’s really dead, gathers evidence, writes the piece, and fact-checks every draft before it publishes.</span>
+        <span>An obituary newsletter for dead domain names, and the stories of their downfalls. Fully autonomous: a TypeScript state machine researches and fact-checks, and Claude Opus writes the final copy.</span>
       </a>
       <a class="home-card" href="unlikely-archivist.html#crierbaby-title">
         <img class="card-preview" src="assets/crierbaby/crierbaby-queue.webp" alt="" width="480" height="1039" loading="lazy">
         <strong>crierbaby</strong>
-        <span>A self-hosted Bluesky photo scheduler on Cloudflare Workers. A vision model drafts captions and alt text, and nothing posts without approval.</span>
+        <span>Feed it photos and tell it how you talk. It writes the captions and posts on a schedule. You approve a batch every few weeks. Bada bing, bada boom.</span>
       </a>
       <a class="home-card" href="unlikely-archivist.html#flatpack-title">
         <pre class="card-preview flatpack-preview" aria-hidden="true">## ALL GPT KNOWLEDGE
@@ -80,20 +81,20 @@
 &gt; See: ALL GPT KNOWLEDGE
 &gt; See: ALL GPT KNOWLEDGE</pre>
         <strong>Flatpack</strong>
-        <span>Turns a tangled Obsidian vault into one clean document. On a real vault: 104,000 lines down to 9,700 by keeping one copy of each repeated note.</span>
+        <span>Export anything from one note to your whole Obsidian vault as a single document. Each embed appears once, then becomes a pointer back to it. My vault: 104,000 lines with Easy Bake, 9,700 with Flatpack.</span>
       </a>
       <a class="home-card" href="art.html#new-mercy-title">
-        <img class="card-preview" src="assets/art/new-mercy-nm-0045.gif" alt="" width="520" height="393" loading="lazy">
+        <img class="card-preview" src="assets/art/new-mercy-nm-0045-page.webp" alt="" width="995" height="622" loading="lazy">
         <strong>New Mercy</strong>
-        <span>The photo archive of a town that doesn’t exist, where every resident in every photograph is the same woman: me.</span>
+        <span>The archive of a town born from my imagination and my anxiety. I get to live every life there, but I have to do it surrounded by myselves.</span>
       </a>
       <a class="home-card" href="art.html#cyborg-cathedral-title">
         <img class="card-preview" src="assets/art/cyborg-cathedral-home.jpg" alt="" width="1029" height="877" loading="lazy">
         <strong>Cyborg Cathedral</strong>
-        <span>The personal website of an ex-nun working to hasten the coming of machine angels, being built into an alternate reality game.</span>
+        <span>Part ARG, part shrine to Divine Machinery: the personal page of “Atrocity,” an ex-nun who thinks she found the key to salvation.</span>
       </a>
     </div>
-    <p class="home-more"><a href="case-study-failing-safely.html">How I build systems that fail safely →</a> <span>Three failures, their root causes, and the safeguards I designed afterward.</span></p>
+    <p class="home-more"><a href="case-study-failing-safely.html">How I build systems that fail safely →</a> <span>Three systems that failed quietly, and what I changed so they’d speak up.</span></p>
   </section>
 
   <script>
@@ -104,10 +105,15 @@
       portraitImg.src = 'assets/eryn-portrait-still.png';
     } else {
       // GIF is encoded to loop=1 (stops on last frame after ~4.87s).
-      // Freeze explicitly on the final frame image when the animation completes.
-      setTimeout(() => {
+      // Wait for load so network delay doesn't cut the animation short.
+      const freeze = () => setTimeout(() => {
         portraitImg.src = 'assets/eryn-portrait-end.png';
       }, 4900);
+      if (portraitImg.complete) {
+        freeze();
+      } else {
+        portraitImg.addEventListener('load', freeze, { once: true });
+      }
     }
 
     // Place the credits card just under the film link, wherever the line wraps.
@@ -116,21 +122,23 @@
     const placeCard = () => {
       // anchor to the link's last line, since the link can wrap
       const lines = filmLink.getClientRects();
+      if (!lines.length) return;
       const last = lines[lines.length - 1];
-      const box = filmCard.offsetParent.getBoundingClientRect();
+      const box = filmCard.offsetParent ? filmCard.offsetParent.getBoundingClientRect() : { top: 0, left: 0 };
       filmCard.style.top = `${last.bottom - box.top + 6}px`;
       // start under that line, but shift left if the card would run off the right edge of the window
       const maxLeft = innerWidth - 16 - box.left - filmCard.offsetWidth;
-      filmCard.style.left = `${Math.min(last.left - box.left, maxLeft)}px`;
+      filmCard.style.left = `${Math.max(16 - box.left, Math.min(last.left - box.left, maxLeft))}px`;
     };
     filmLink.addEventListener('pointerenter', placeCard);
     filmLink.addEventListener('focus', placeCard);
+    window.addEventListener('resize', placeCard);
   </script>
   <footer class="site-footer">
-    <a href="https://github.com/unlikely-archivist">GitHub</a>
-    <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
-    <a href="https://substack.com/@unlikelyarchivist">Substack</a>
-    <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    <a href="https://github.com/unlikely-archivist" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://www.val.town/u/unlikelyarchivist" target="_blank" rel="noopener noreferrer">Val Town</a>
+    <a href="https://substack.com/@unlikelyarchivist" target="_blank" rel="noopener noreferrer">Substack</a>
+    <a href="https://www.imdb.com/name/nm5005363/" target="_blank" rel="noopener noreferrer">IMDb</a>
     <a href="contact.html">Contact</a>
   </footer>
 </body>

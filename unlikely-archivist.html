@@ -11,15 +11,17 @@
   <meta property="og:url" content="https://erynmontgomery.com/unlikely-archivist.html">
   <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://erynmontgomery.com/unlikely-archivist.html">
   <link rel="icon" href="assets/favicon.png" sizes="64x64">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="preload" href="assets/fonts/lombarduerer.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <nav class="topnav" aria-label="Sections">
     <a class="home" href="index.html">Eryn Montgomery</a>
     <a href="unlikely-archivist.html" aria-current="page">Projects</a>
@@ -29,29 +31,29 @@
     <a href="contact.html">Contact</a>
   </nav>
 
-  <main class="page projects-page">
+  <main class="page projects-page" id="main">
     <h1>Projects</h1>
-    <p class="page-summary">Tools I build to solve problems I run into, shipped under the name Unlikely Archivist.</p>
+    <p class="page-summary">Things I built because I needed them and they didn’t exist yet. I ship them as Unlikely Archivist.</p>
     <p class="page-summary"><a class="project-secondary" href="case-study-failing-safely.html">How I build systems that fail safely →</a></p>
 
     <div class="project-grid">
     <section class="featured-project" aria-labelledby="flatpack-title">
       <p class="project-kicker">Obsidian tool · Templater</p>
       <h2 id="flatpack-title">Flatpack</h2>
-      <p class="project-lead">Turn a tangled Obsidian vault into one clean, portable document—without copying the same embedded note over and over.</p>
+      <p class="project-lead">Export one note or your whole Obsidian vault as a single document, with every embedded note included once.</p>
 
       <div class="project-story">
         <div>
           <h3>The problem</h3>
-          <p>Obsidian’s Easy Bake plugin merges a vault’s notes into one document, but heavily cross-embedded notes can echo throughout the result. Shared content gets duplicated until the master document is too bloated to be useful.</p>
+          <p>Easy Bake, the usual plugin for this, pastes an embedded note in full every time it appears. In a vault where notes embed each other, the same text repeats until the master document is too big to use.</p>
         </div>
         <div>
-          <h3>The smarter approach</h3>
-          <p>Flatpack keeps the first copy of an embedded note, replaces repeats with a one-line pointer, and turns the original folder structure into a readable heading hierarchy.</p>
+          <h3>The fix</h3>
+          <p>Flatpack includes each embed the first time it shows up, then leaves a one-line pointer back to it. Your folders become headings, so the result still reads like your vault.</p>
         </div>
       </div>
 
-      <p class="project-result"><strong>104,000 → 9,700</strong><span>lines in a real test vault, by keeping one copy of each repeated note.</span></p>
+      <p class="project-result"><strong>104,000 → 9,700</strong><span>lines in my own vault: Easy Bake vs. Flatpack.</span></p>
 
       <a class="project-cta" href="https://github.com/unlikely-archivist/Flatpack">Explore Flatpack on GitHub →</a>
     </section>
@@ -59,16 +61,16 @@
     <section class="featured-project" aria-labelledby="ripurl-title">
       <p class="project-kicker">Autonomous publication · Val Town · TypeScript</p>
       <h2 id="ripurl-title">RIP · URL</h2>
-      <p class="project-lead">A weekly obituary for dead websites—written by a machine held to an archivist’s rules.</p>
+      <p class="project-lead">A weekly obituary newsletter for dead domain names and the stories of their downfalls. It runs itself, so it has to fact-check itself.</p>
 
       <div class="project-story">
         <div>
           <h3>The risk</h3>
-          <p>Left unsupervised, an AI writer can choose a living company, fill gaps from memory, or turn guesses into confident history. For a publication about real companies, “usually right” isn’t good enough.</p>
+          <p>An unsupervised AI writer will happily eulogize a company that’s still alive. My pilot did it three times: oracle.com, cranberries.com, and saban.com. For a publication about real companies, “usually right” isn’t good enough.</p>
         </div>
         <div>
           <h3>The system</h3>
-          <p>A TypeScript state machine discovers a candidate, checks that its URL is really dead, assembles primary evidence and an archived screenshot, then independently fact-checks every draft before publication. Automated tests, run on every push, guard the rule that matters most: a website that’s still alive never gets an obituary.</p>
+          <p>A TypeScript state machine finds a candidate, checks live that its URL is really dead, and gathers primary sources and an archived screenshot. Claude Opus writes from that evidence only, and a separate fact-check audits every draft before it publishes. Tests run on every push to guard the one rule that matters most: a living website never gets an obituary.</p>
         </div>
       </div>
 
@@ -82,9 +84,9 @@
     </section>
 
     <section class="featured-project featured-project-full" aria-labelledby="crierbaby-title">
-      <p class="project-kicker">Bluesky scheduler · Cloudflare Workers · Vision AI</p>
+      <p class="project-kicker">Photo scheduler · Cloudflare Workers · Vision AI</p>
       <h2 id="crierbaby-title">crierbaby</h2>
-      <p class="project-lead">A self-hosted photo scheduler that drafts captions from the photo itself—and never posts anything you haven’t approved.</p>
+      <p class="project-lead">Dump your photos in, tell it how you talk, and approve a batch every few weeks. It writes the captions and alt text and posts on schedule.</p>
 
       <div class="phone-strip">
         <figure><img src="assets/crierbaby/crierbaby-queue.webp" width="480" height="1039" loading="lazy" alt="Queue of upcoming posts with approve, delete, and reroll buttons"><figcaption>Queue: approve or reroll</figcaption></figure>
@@ -95,11 +97,11 @@
       <div class="project-story project-story-split">
         <div>
           <h3>The problem</h3>
-          <p>Posting a photo every day is a chore, but handing the account to an AI means off-voice, repetitive, or wrong posts can go out with no one checking.</p>
+          <p>Posting a photo every day is a chore. Handing the account to an AI means off-voice, repetitive, or plain wrong posts going out with nobody checking.</p>
         </div>
         <div>
           <h3>The system</h3>
-          <p>A vision model drafts captions and alt text, similar-looking photos get spaced apart, and new captions are checked for repetition. Plain-language notes set the voice. Nothing publishes until it’s approved. Automated tests cover the parts that fail quietly: a retry that never posts twice, a schedule that survives daylight saving, look-alike photos, repeated phrases, and PIN rate limits.</p>
+          <p>A vision model writes captions and alt text from the photo itself, following voice notes you write in plain words. Look-alike photos get spaced apart, and new captions are checked against old ones for repetition. Nothing posts until you approve it. Tests cover the parts that fail quietly: a retry that never double-posts, a schedule that survives daylight saving, look-alike photos, repeated phrases, and PIN rate limits.</p>
         </div>
       </div>
 
@@ -111,7 +113,7 @@
     <section class="featured-project featured-project-full" aria-labelledby="browser-tools-title">
       <p class="project-kicker">Creative coding · Browser tools</p>
       <h2 id="browser-tools-title">Creative Browser Tools</h2>
-      <p class="project-lead">Small, focused tools for extracting color and introducing intentional digital decay.</p>
+      <p class="project-lead">Browser tools for design that I wished existed: one pulls colors out of a photo, the other rots an image on purpose.</p>
 
       <div class="tool-links">
         <a href="https://bloodnbinary.neocities.org/tools/color-palette/">
@@ -129,10 +131,10 @@
     </div>
   </main>
   <footer class="site-footer">
-    <a href="https://github.com/unlikely-archivist">GitHub</a>
-    <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
-    <a href="https://substack.com/@unlikelyarchivist">Substack</a>
-    <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    <a href="https://github.com/unlikely-archivist" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://www.val.town/u/unlikelyarchivist" target="_blank" rel="noopener noreferrer">Val Town</a>
+    <a href="https://substack.com/@unlikelyarchivist" target="_blank" rel="noopener noreferrer">Substack</a>
+    <a href="https://www.imdb.com/name/nm5005363/" target="_blank" rel="noopener noreferrer">IMDb</a>
     <a href="contact.html">Contact</a>
   </footer>
 </body>

@@ -11,15 +11,17 @@
   <meta property="og:url" content="https://erynmontgomery.com/contact.html">
   <meta property="og:image" content="https://erynmontgomery.com/assets/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://erynmontgomery.com/contact.html">
   <link rel="icon" href="assets/favicon.png" sizes="64x64">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="preload" href="assets/fonts/lombarduerer.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <nav class="topnav" aria-label="Sections">
     <a class="home" href="index.html">Eryn Montgomery</a>
     <a href="unlikely-archivist.html">Projects</a>
@@ -29,7 +31,7 @@
     <a href="contact.html" aria-current="page">Contact</a>
   </nav>
 
-  <main class="page contact-page">
+  <main class="page contact-page" id="main">
     <h1>Let’s connect.</h1>
     <p class="contact-intro"><span>Whether you’re hiring or not,</span> <span>I want to hear about your projects!</span></p>
 
@@ -43,8 +45,13 @@
       </ul>
     </div>
 
+    <div id="form-success" class="contact-success" style="display: none;">
+      <p><strong>Message sent!</strong> Thanks for reaching out — I’ll get back to you soon.</p>
+    </div>
+
     <form class="contact-form" action="https://formsubmit.co/6dd467121b589d14c4dbc09d689b4d6c" method="POST">
       <input type="hidden" name="_subject" value="New message from erynmontgomery.com">
+      <input type="hidden" name="_next" value="https://erynmontgomery.com/contact.html?submitted=true">
       <input type="hidden" name="_captcha" value="false">
       <input class="form-honeypot" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -65,12 +72,20 @@
 
       <button type="submit">Send message</button>
     </form>
+
+    <p class="contact-direct">Prefer email? Reach me directly at <a href="mailto:montgomery.k.eryn@gmail.com">montgomery.k.eryn@gmail.com</a></p>
   </main>
+  <script>
+    if (new URLSearchParams(window.location.search).get('submitted') === 'true') {
+      const successBox = document.getElementById('form-success');
+      if (successBox) successBox.style.display = 'block';
+    }
+  </script>
   <footer class="site-footer">
-    <a href="https://github.com/unlikely-archivist">GitHub</a>
-    <a href="https://www.val.town/u/unlikelyarchivist">Val Town</a>
-    <a href="https://substack.com/@unlikelyarchivist">Substack</a>
-    <a href="https://www.imdb.com/name/nm5005363/">IMDb</a>
+    <a href="https://github.com/unlikely-archivist" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://www.val.town/u/unlikelyarchivist" target="_blank" rel="noopener noreferrer">Val Town</a>
+    <a href="https://substack.com/@unlikelyarchivist" target="_blank" rel="noopener noreferrer">Substack</a>
+    <a href="https://www.imdb.com/name/nm5005363/" target="_blank" rel="noopener noreferrer">IMDb</a>
     <a href="contact.html">Contact</a>
   </footer>
 </body>
