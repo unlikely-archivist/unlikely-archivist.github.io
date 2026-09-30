@@ -783,6 +783,7 @@ code {
   font-size: 0.9rem;
 }
 .site-footer a { color: #111; text-decoration-color: #9b1c1c; text-underline-offset: 3px; }
+.site-footer-note { margin-left: auto; color: #666; font-style: italic; }
 
 /* ---------- résumé page: prints to one letter-size page (File > Print > Save as PDF) ---------- */
 .resume { max-width: 48rem; margin: 0 auto; padding: 3rem 1rem 5rem; font-size: 0.95rem; line-height: 1.5; }
