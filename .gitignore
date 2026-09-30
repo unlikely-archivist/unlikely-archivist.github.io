@@ -7,3 +7,4 @@ assets/unlikelyarchive_*
 
 
 .claude/settings.local.json
+server.py
