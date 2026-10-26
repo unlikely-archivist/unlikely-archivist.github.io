@@ -41,15 +41,25 @@ h1{margin:0;font-size:0}
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
 .hint{margin:0 0 5px;text-align:center;font-size:14px;font-style:italic;opacity:.75}
-.slots{display:grid;grid-template-columns:repeat(3,1fr) auto auto;gap:6px;align-items:stretch}
+.slots{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:6px;align-items:stretch}
 .slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
 .slot[aria-pressed="true"] img{opacity:.3}
 .slot[aria-pressed="true"]::after{content:"✓";position:absolute;top:2px;right:6px;font-weight:bold}
 .reset{min-width:52px;cursor:pointer;font-size:22px;touch-action:manipulation}
-.scene{width:52px;padding:4px;cursor:pointer;touch-action:manipulation}
-.scene img{width:100%;height:100%;max-height:none;object-fit:cover;border-radius:5px;image-rendering:pixelated}
+/* "time to go out!" floats at the top of the room once she's wearing something */
+.go{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:4;padding:8px 18px;border:3px solid #493b3d;border-radius:999px;background:#ff7aa8;color:#fff;font:italic 18px Georgia,serif;box-shadow:0 3px 0 #493b3d;cursor:pointer;white-space:nowrap;touch-action:manipulation;animation:bob 1.6s ease-in-out infinite}
+.go[hidden]{display:none}
+@keyframes bob{50%{transform:translate(-50%,-3px)}}
+/* at the bar the closet steps aside (same height, so Molly doesn't jump) */
+.shelf.out .hint,.shelf.out .slots{visibility:hidden}
+.outpanel{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding-bottom:env(safe-area-inset-bottom)}
+.shelf.out .outpanel{display:flex}
+.outpanel p{margin:0;font-style:italic}
+.home{padding:8px 16px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.fade{position:fixed;inset:0;z-index:60;background:#1a1012;opacity:0;pointer-events:none;transition:opacity .35s}
+.fade.on{opacity:1}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 
 .ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
@@ -64,16 +74,18 @@ h1{margin:0;font-size:0}
     <div class="room" id="room" aria-hidden="true"></div>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
+    <button class="go" id="goOut" hidden>time to go out! ♡</button>
   </main>
 
-  <nav class="shelf" aria-label="Molly's closet">
+  <nav class="shelf" id="shelf" aria-label="Molly's closet">
     <p class="hint">drag onto Molly ♡ drag back here to put away</p>
     <div class="slots" id="slots">
-      <button class="slot scene" id="scene" aria-label="Go to the bar"><img src="assets/thumb-bar.jpg" alt=""></button>
       <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
     </div>
+    <div class="outpanel"><p>out at the bar ♡</p><button class="home" id="goHome">⌂ go home to change</button></div>
   </nav>
   <p class="sr-only" aria-live="polite" id="status"></p>
+  <div class="fade" id="fade"></div>
 </div>
 
 <script>
@@ -167,12 +179,13 @@ for (const it of ITEMS) {
   b.className = 'slot';
   b.innerHTML = `<img src="${it.src}" alt="">`;
   b.setAttribute('aria-label', it.name);
-  slots.insertBefore(b, document.getElementById('scene'));
+  slots.insertBefore(b, document.getElementById('reset'));
   it.slot = b;
 }
 
 function render(popped) {
   for (const it of ITEMS) it.slot.setAttribute('aria-pressed', placed.has(it.id));
+  document.getElementById('goOut').hidden = scene !== 'room' || placed.size === 0; // dressed (wearing something) → ready to go out
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
@@ -272,25 +285,48 @@ for (const it of ITEMS) {
     render(true);
   });
 }
-canvas.addEventListener('pointerdown', e => { const it = itemAt(e.clientX, e.clientY); if (it) startDrag(e, it); });
+canvas.addEventListener('pointerdown', e => { if (scene !== 'room') return; const it = itemAt(e.clientX, e.clientY); if (it) startDrag(e, it); }); // no changing at the bar
 canvas.addEventListener('pointermove', moveDrag);
 canvas.addEventListener('pointerup', e => endDrag(e, false));
 canvas.addEventListener('pointercancel', e => endDrag(e, true));
 
-// ---- where she is: her room or the bar ----
-const room = document.getElementById('room'), sceneBtn = document.getElementById('scene');
-try { if (localStorage.getItem('molly-scene') === 'bar') scene = 'bar'; } catch {}
-function showScene() {
-  room.classList.toggle('bar', scene === 'bar');
-  const other = scene === 'bar' ? 'room' : 'bar';
-  sceneBtn.querySelector('img').src = `assets/thumb-${other}.jpg`;
-  sceneBtn.setAttribute('aria-label', other === 'bar' ? 'Go to the bar' : 'Go back to her room');
-  try { localStorage.setItem('molly-scene', scene); } catch {}
+// Buttons answer the finger lifting off them rather than "click": on phones a click
+// can get swallowed right after a drag. Keyboard (Enter/Space) still uses click.
+function onTap(el, fn) {
+  let down = null;
+  el.addEventListener('pointerdown', e => { down = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+  el.addEventListener('pointerup', e => {
+    if (!down || down.id !== e.pointerId) return;
+    const r = el.getBoundingClientRect(), moved = Math.hypot(e.clientX - down.x, e.clientY - down.y) >= TAP;
+    down = null;
+    if (!moved && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) fn();
+  });
+  el.addEventListener('pointercancel', () => { down = null; });
+  el.addEventListener('click', e => { if (e.detail === 0) fn(); });
 }
-sceneBtn.addEventListener('click', () => { scene = scene === 'bar' ? 'room' : 'bar'; showScene(); paint(); });
-showScene();
 
-document.getElementById('reset').addEventListener('click', () => {
+// ---- the story: get dressed in her room, then go out to the bar ----
+const room = document.getElementById('room'), shelf = document.getElementById('shelf'), fade = document.getElementById('fade');
+let going = false;
+function goTo(next) {
+  if (going || scene === next) return;
+  going = true;
+  fade.classList.add('on');
+  setTimeout(() => {
+    scene = next;
+    room.classList.toggle('bar', scene === 'bar');
+    shelf.classList.toggle('out', scene === 'bar');
+    shelf.setAttribute('aria-label', scene === 'bar' ? 'At the bar' : "Molly's closet");
+    render();
+    statusEl.textContent = scene === 'bar' ? 'Molly went out to the bar.' : 'Molly is back home.';
+    fade.classList.remove('on');
+    going = false;
+  }, 380);
+}
+onTap(document.getElementById('goOut'), () => goTo('bar'));
+onTap(document.getElementById('goHome'), () => goTo('room'));
+
+onTap(document.getElementById('reset'), () => {
   placed.clear(); render();
   statusEl.textContent = 'Everything is back in the closet.';
 });
