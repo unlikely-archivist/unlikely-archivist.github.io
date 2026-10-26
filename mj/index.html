@@ -72,7 +72,7 @@ h1{margin:0;font-size:0}
   </main>
 
   <nav class="shelf" aria-label="Molly's closet">
-    <p class="hint">tap or drag clothes onto Molly ♡</p>
+    <p class="hint">drag clothes onto Molly ♡</p>
     <div class="slots" id="slots">
       <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
     </div>
@@ -206,8 +206,8 @@ function endDrag(e, cancelled) {
   if (hidden) { hidden = null; paint(); }
   if (ghost) { ghost.classList.add('gone'); setTimeout(() => ghost.remove(), 160); }
   if (cancelled) return;
-  if (!moved) setWorn(it, !worn.has(it.id));                     // a tap toggles
-  else if (fromDoll) { if (!overDoll(e.clientX, e.clientY, 0)) setWorn(it, false); }
+  if (!moved) return;                                            // dressing is drag & drop only
+  if (fromDoll) { if (!overDoll(e.clientX, e.clientY, 0)) setWorn(it, false); }
   else if (overDoll(e.clientX, e.clientY)) setWorn(it, true);    // dropped on her: snaps into place
 }
 
