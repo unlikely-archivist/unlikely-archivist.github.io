@@ -92,20 +92,20 @@ const slots = document.getElementById('slots');
 const statusEl = document.getElementById('status');
 const placed = new Map(); // id → {x, y}: clothes that are out of the closet, wherever they were dropped
 // the kitty lives in the room (never on the shelf); drawn on the same grid as Molly, in front of her
-const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 252, z: 6 };
+const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 456, z: 6 }; // the original 38 × 41 drawing, one block per pixel
 let kittyPos = null, hop = 0;
 
 // saved outfit (per device; the game works fine without it)
 try {
   const saved = JSON.parse(localStorage.getItem('molly-placed')) || {};
   for (const it of ITEMS) if (Array.isArray(saved[it.id])) placed.set(it.id, { x: saved[it.id][0], y: saved[it.id][1] });
-  const k = JSON.parse(localStorage.getItem('molly-kitty'));
+  const k = JSON.parse(localStorage.getItem('molly-kitty-v2'));
   if (Array.isArray(k)) kittyPos = { x: k[0], y: k[1] };
 } catch {}
 const save = () => {
   try {
     localStorage.setItem('molly-placed', JSON.stringify(Object.fromEntries([...placed].map(([k, v]) => [k, [v.x, v.y]]))));
-    if (kittyPos) localStorage.setItem('molly-kitty', JSON.stringify([kittyPos.x, kittyPos.y]));
+    if (kittyPos) localStorage.setItem('molly-kitty-v2', JSON.stringify([kittyPos.x, kittyPos.y]));
   } catch {}
 };
 
@@ -122,7 +122,7 @@ function measure() {
   canvas.width = Math.ceil(s.width * k); canvas.height = Math.ceil(s.height * k);
   view = { k, ox: Math.round((d.left - s.left) * k), oy: Math.round((d.top - s.top) * k) };
   // first visit: kitty sits on the floor to Molly's right, inside the room
-  if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1164 };
+  if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1404 - 492 };
   paint();
 }
 new ResizeObserver(measure).observe(stage);
