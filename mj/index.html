@@ -30,6 +30,7 @@ h1{margin:0;font-size:0}
 /* the room: the background is cropped, never stretched; things are placed using --ih (rendered image height) */
 .stage{flex:1 1 auto;min-height:0;position:relative;overflow:hidden;container-type:size;touch-action:none}
 .room{position:absolute;inset:0;background:url("assets/pink-room.jpg") center bottom / cover no-repeat;image-rendering:pixelated}
+.room.bar{background-image:url("assets/bar.jpg")}
 .stage>*{--ih:max(100cqh,calc(100cqw * 1.3278))}
 .doll{--dh:min(calc(var(--ih) * .68),calc(100cqh - var(--ih) * .075 - 20px));position:absolute;left:50%;bottom:calc(var(--ih) * .075);height:var(--dh);width:calc(var(--dh) * 1090 / 1443);margin-left:calc(var(--dh) * -545 / 1443);touch-action:none}
 /* the doll box only measures where Molly stands; she and every piece of clothing are drawn into one canvas over the room */
@@ -40,13 +41,15 @@ h1{margin:0;font-size:0}
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
 .hint{margin:0 0 5px;text-align:center;font-size:14px;font-style:italic;opacity:.75}
-.slots{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:6px;align-items:stretch}
+.slots{display:grid;grid-template-columns:repeat(3,1fr) auto auto;gap:6px;align-items:stretch}
 .slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
 .slot[aria-pressed="true"] img{opacity:.3}
 .slot[aria-pressed="true"]::after{content:"✓";position:absolute;top:2px;right:6px;font-weight:bold}
 .reset{min-width:52px;cursor:pointer;font-size:22px;touch-action:manipulation}
+.scene{width:52px;padding:4px;cursor:pointer;touch-action:manipulation}
+.scene img{width:100%;height:100%;max-height:none;object-fit:cover;border-radius:5px;image-rendering:pixelated}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 
 .ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
@@ -58,7 +61,7 @@ h1{margin:0;font-size:0}
   <header><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1></header>
 
   <main class="stage" id="stage">
-    <div class="room" aria-hidden="true"></div>
+    <div class="room" id="room" aria-hidden="true"></div>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
   </main>
@@ -66,6 +69,7 @@ h1{margin:0;font-size:0}
   <nav class="shelf" aria-label="Molly's closet">
     <p class="hint">drag onto Molly ♡ drag back here to put away</p>
     <div class="slots" id="slots">
+      <button class="slot scene" id="scene" aria-label="Go to the bar"><img src="assets/thumb-bar.jpg" alt=""></button>
       <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
     </div>
   </nav>
@@ -94,6 +98,7 @@ const placed = new Map(); // id → {x, y}: clothes that are out of the closet, 
 // the kitty lives in the room (never on the shelf); drawn on the same grid as Molly, in front of her
 const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 456, z: 6 }; // the original 38 × 41 drawing, one block per pixel
 let kittyPos = null, hop = 0;
+let scene = 'room'; // 'room' or 'bar'; the kitty only appears at home
 
 // saved outfit (per device; the game works fine without it)
 try {
@@ -132,7 +137,7 @@ function paint() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const layers = [{ z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
     ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.img, w: it.w })),
-    ...(kittyPos && hidden !== KITTY ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
+    ...(kittyPos && hidden !== KITTY && scene !== 'bar' ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
     if (!L.img.complete || !L.img.naturalWidth) continue;
@@ -162,7 +167,7 @@ for (const it of ITEMS) {
   b.className = 'slot';
   b.innerHTML = `<img src="${it.src}" alt="">`;
   b.setAttribute('aria-label', it.name);
-  slots.insertBefore(b, document.getElementById('reset'));
+  slots.insertBefore(b, document.getElementById('scene'));
   it.slot = b;
 }
 
@@ -183,7 +188,7 @@ function boxOf(it) { // where a placed piece is on screen
   return { L: s.left + (view.ox + p.x) / view.k, T: s.top + (view.oy + p.y) / view.k, W: w, H: h };
 }
 function itemAt(x, y) { // topmost placed piece (or the kitty) with visible pixels under the finger
-  return [KITTY, ...ITEMS.filter(it => placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
+  return [...(scene !== 'bar' ? [KITTY] : []), ...ITEMS.filter(it => placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
     const { L, T, W, H } = boxOf(it), u = (x - L) / W, v = (y - T) / H;
     if (u < 0 || v < 0 || u > 1 || v > 1) return false;
     try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
@@ -271,6 +276,19 @@ canvas.addEventListener('pointerdown', e => { const it = itemAt(e.clientX, e.cli
 canvas.addEventListener('pointermove', moveDrag);
 canvas.addEventListener('pointerup', e => endDrag(e, false));
 canvas.addEventListener('pointercancel', e => endDrag(e, true));
+
+// ---- where she is: her room or the bar ----
+const room = document.getElementById('room'), sceneBtn = document.getElementById('scene');
+try { if (localStorage.getItem('molly-scene') === 'bar') scene = 'bar'; } catch {}
+function showScene() {
+  room.classList.toggle('bar', scene === 'bar');
+  const other = scene === 'bar' ? 'room' : 'bar';
+  sceneBtn.querySelector('img').src = `assets/thumb-${other}.jpg`;
+  sceneBtn.setAttribute('aria-label', other === 'bar' ? 'Go to the bar' : 'Go back to her room');
+  try { localStorage.setItem('molly-scene', scene); } catch {}
+}
+sceneBtn.addEventListener('click', () => { scene = scene === 'bar' ? 'room' : 'bar'; showScene(); paint(); });
+showScene();
 
 document.getElementById('reset').addEventListener('click', () => {
   placed.clear(); render();
