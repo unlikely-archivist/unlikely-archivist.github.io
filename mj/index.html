@@ -32,10 +32,10 @@ h1{margin:0;font-size:0}
 .room{position:absolute;inset:0;background:url("assets/pink-room.jpg") center bottom / cover no-repeat;image-rendering:pixelated}
 .stage>*{--ih:max(100cqh,calc(100cqw * 1.3278))}
 .doll{--dh:min(calc(var(--ih) * .68),calc(100cqh - var(--ih) * .075 - 20px));position:absolute;left:50%;bottom:calc(var(--ih) * .075);height:var(--dh);width:calc(var(--dh) * 1090 / 1443);margin-left:calc(var(--dh) * -545 / 1443);touch-action:none}
-/* Molly and her clothes are drawn together into this one canvas, so they always scale as one picture */
-.doll canvas{position:absolute;left:0;width:100%;top:calc(-48 / 1443 * 100%);height:calc(1491 / 1443 * 100%);image-rendering:pixelated;pointer-events:none}
-.doll.pop canvas{animation:pop .22s ease-out}
-@keyframes pop{0%{transform:scale(1.03)}100%{transform:none}}
+/* the doll box only measures where Molly stands; she and every piece of clothing are drawn into one canvas over the room */
+#outfit{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;touch-action:none;z-index:1}
+#outfit.pop{animation:pop .22s ease-out}
+@keyframes pop{0%{opacity:.85}100%{opacity:1}}
 .kitty{position:absolute;height:calc(var(--ih) * .15);aspect-ratio:1202/1309;left:76%;bottom:calc(var(--ih) * .06);cursor:grab;touch-action:none;z-index:6;outline:none}
 .kitty img{width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
 .kitty.hop{animation:hop .35s ease-out}
@@ -56,7 +56,6 @@ h1{margin:0;font-size:0}
 
 .ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
 .ghost.gone{opacity:0}
-.doll.target::before{content:"";position:absolute;inset:-4%;border:3px dashed rgba(255,255,255,.9);border-radius:20px}
 </style>
 </head>
 <body>
@@ -65,14 +64,13 @@ h1{margin:0;font-size:0}
 
   <main class="stage" id="stage">
     <div class="room" aria-hidden="true"></div>
-    <div class="doll" id="doll" role="img" aria-label="Molly">
-      <canvas id="outfit" width="1090" height="1491"></canvas>
-    </div>
+    <div class="doll" id="doll" aria-hidden="true"></div>
+    <canvas id="outfit" role="img" aria-label="Molly"></canvas>
     <div class="kitty" id="kitty" role="button" tabindex="0" aria-label="Kitty. Drag her around, or use the arrow keys."><img src="assets/kitty.png" alt=""></div>
   </main>
 
   <nav class="shelf" aria-label="Molly's closet">
-    <p class="hint">drag clothes onto Molly ♡</p>
+    <p class="hint">drag onto Molly ♡ drag back here to put away</p>
     <div class="slots" id="slots">
       <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
     </div>
@@ -81,54 +79,71 @@ h1{margin:0;font-size:0}
 </div>
 
 <script>
-// Where each item sits when worn, in doll-base.png pixels (1090 × 1443).
-// Molly is drawn in 12px blocks; item images use the same 12px blocks, so keep
-// x ≡ 10 and y ≡ 0 (mod 12) and widths a multiple of 12 or the pixels won't line up.
-// z = stacking order on the doll: base 0, hair-front 4 (hair falls over everything but the hat).
-// The canvas has 48px of headroom above doll-base.png for the hat brim.
-const DOLL_W = 1090, DOLL_H = 1443, TOP = 48;
+// Everything is measured in doll-base.png pixels (1090 × 1443), with Molly's top-left corner at 0,0.
+// Molly is drawn in 12px blocks and so are the clothes; dropped clothes land on her 12px grid
+// (x ≡ 10, y ≡ 0 mod 12) so their pixels line up with hers. x, y = where each piece fits her,
+// used only by keyboard players. z = stacking order: base 0, hair-front 4 (hair falls over all but the hat).
+const DOLL_W = 1090, DOLL_H = 1443, P = 12, GX = 10;
 const ITEMS = [
   { id: 'hat',    name: 'pink cowboy hat', src: 'assets/items/hat.png',    x: 274, y: -36,  w: 552, z: 5 },
   { id: 'jacket', name: 'camo jacket',     src: 'assets/items/jacket.png', x: 166, y: 360,  w: 756, z: 3 },
   { id: 'boots',  name: 'buckle boots',    src: 'assets/items/boots.png',  x: 334, y: 1104, w: 444, z: 2 },
 ];
 
+const stage = document.getElementById('stage');
 const doll = document.getElementById('doll');
+const canvas = document.getElementById('outfit');
+const ctx = canvas.getContext('2d');
 const slots = document.getElementById('slots');
 const statusEl = document.getElementById('status');
-const worn = new Set();
+const placed = new Map(); // id → {x, y}: clothes that are out of the closet, wherever they were dropped
 
 // saved outfit (per device; the game works fine without it)
-try { (JSON.parse(localStorage.getItem('molly-outfit')) || []).forEach(id => ITEMS.some(it => it.id === id) && worn.add(id)); } catch {}
-const save = () => { try { localStorage.setItem('molly-outfit', JSON.stringify([...worn])); } catch {} };
+try {
+  const saved = JSON.parse(localStorage.getItem('molly-placed')) || {};
+  for (const it of ITEMS) if (Array.isArray(saved[it.id])) placed.set(it.id, { x: saved[it.id][0], y: saved[it.id][1] });
+} catch {}
+const save = () => { try { localStorage.setItem('molly-placed', JSON.stringify(Object.fromEntries([...placed].map(([k, v]) => [k, [v.x, v.y]])))); } catch {} };
 
 const load = src => { const img = new Image(); img.onload = () => paint(); img.src = src; return img; }; // repaint as each picture arrives
 const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png');
-const ctx = document.getElementById('outfit').getContext('2d');
-ctx.imageSmoothingEnabled = false;
-let hidden = null; // the item being dragged off her
+let hidden = null; // the item being dragged
+
+// view: k = doll pixels per CSS pixel, (ox, oy) = Molly's corner in canvas pixels
+let view = { k: 1, ox: 0, oy: 0 };
+function measure() {
+  const s = stage.getBoundingClientRect(), d = doll.getBoundingClientRect();
+  if (!d.height) return;
+  const k = DOLL_H / d.height;
+  canvas.width = Math.ceil(s.width * k); canvas.height = Math.ceil(s.height * k);
+  view = { k, ox: Math.round((d.left - s.left) * k), oy: Math.round((d.top - s.top) * k) };
+  paint();
+}
+new ResizeObserver(measure).observe(stage);
 
 function paint() {
-  ctx.clearRect(0, 0, DOLL_W, DOLL_H + TOP);
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   const layers = [{ z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
-    ...ITEMS.filter(it => worn.has(it.id) && it !== hidden)].sort((a, b) => a.z - b.z);
+    ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.img, w: it.w }))]
+    .sort((a, b) => a.z - b.z);
   for (const L of layers) {
     if (!L.img.complete || !L.img.naturalWidth) continue;
-    ctx.drawImage(L.img, L.x, L.y + TOP, L.w, L.w * L.img.naturalHeight / L.img.naturalWidth);
+    ctx.drawImage(L.img, view.ox + L.x, view.oy + L.y, L.w, L.w * L.img.naturalHeight / L.img.naturalWidth);
   }
 }
 
-// ---- load the clothes and build the shelf ----
+// ---- load the clothes and build the closet shelf ----
 for (const it of ITEMS) {
   const img = load(it.src);
   it.img = img;
-  // keep the pixels so a tap only grabs an item where it is actually visible
+  // keep the pixels so you can only grab a piece where it is actually visible
   img.decode().then(() => {
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
-    const ctx = c.getContext('2d', { willReadFrequently: true });
-    ctx.drawImage(img, 0, 0);
-    it.alpha = (u, v) => ctx.getImageData(Math.min(c.width - 1, u * c.width) | 0, Math.min(c.height - 1, v * c.height) | 0, 1, 1).data[3];
+    const cx = c.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(img, 0, 0);
+    it.alpha = (u, v) => cx.getImageData(Math.min(c.width - 1, u * c.width) | 0, Math.min(c.height - 1, v * c.height) | 0, 1, 1).data[3];
   }).catch(() => {});
 
   const b = document.createElement('button');
@@ -139,43 +154,33 @@ for (const it of ITEMS) {
   it.slot = b;
 }
 
-function render(changed) {
-  for (const it of ITEMS) it.slot.setAttribute('aria-pressed', worn.has(it.id));
+function render(popped) {
+  for (const it of ITEMS) it.slot.setAttribute('aria-pressed', placed.has(it.id));
   paint();
-  if (changed && worn.has(changed.id)) { doll.classList.remove('pop'); void doll.offsetWidth; doll.classList.add('pop'); }
+  if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
 }
-function setWorn(it, on) {
-  on ? worn.add(it.id) : worn.delete(it.id);
-  render(it);
-  statusEl.textContent = `Molly ${on ? 'put on' : 'took off'} the ${it.name}.`;
-}
 
-// ---- drag & tap: shelf → Molly to wear it, Molly → anywhere else to take it off ----
+// ---- drag & drop: clothes stay exactly where you drop them; drop one on the shelf to put it away ----
 const TAP = 8;
-const dollRect = () => doll.getBoundingClientRect();
-const overDoll = (x, y, pad = 0.12) => {
-  const r = dollRect(), px = r.width * pad, py = r.height * pad * 0.5;
-  return x > r.left - px && x < r.right + px && y > r.top - py && y < r.bottom + py;
-};
-function wornBox(it) {
-  const r = dollRect();
-  const W = (it.w / DOLL_W) * r.width;
-  return { L: (it.x / DOLL_W) * r.width + r.left, T: (it.y / DOLL_H) * r.height + r.top, W, H: W * it.img.naturalHeight / it.img.naturalWidth };
+const size = it => ({ w: it.w / view.k, h: (it.w / view.k) * it.img.naturalHeight / it.img.naturalWidth }); // CSS px
+function boxOf(it) { // where a placed piece is on screen
+  const s = stage.getBoundingClientRect(), p = placed.get(it.id), { w, h } = size(it);
+  return { L: s.left + (view.ox + p.x) / view.k, T: s.top + (view.oy + p.y) / view.k, W: w, H: h };
 }
-function itemAt(x, y) { // topmost worn item with visible pixels under the finger
-  return ITEMS.filter(it => worn.has(it.id)).sort((a, b) => b.z - a.z).find(it => {
-    const { L, T, W, H } = wornBox(it), u = (x - L) / W, v = (y - T) / H;
+function itemAt(x, y) { // topmost placed piece with visible pixels under the finger
+  return ITEMS.filter(it => placed.has(it.id)).sort((a, b) => b.z - a.z).find(it => {
+    const { L, T, W, H } = boxOf(it), u = (x - L) / W, v = (y - T) / H;
     if (u < 0 || v < 0 || u > 1 || v > 1) return false;
     try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
   });
 }
 
 let drag = null;
-function startDrag(e, it, fromDoll) {
+function startDrag(e, it) {
   if (e.button > 0 || drag) return;
   e.preventDefault();
-  drag = { it, fromDoll, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, ghost: null };
+  drag = { it, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, ghost: null };
   e.currentTarget.setPointerCapture(e.pointerId);
 }
 function moveDrag(e) {
@@ -184,53 +189,64 @@ function moveDrag(e) {
   const { it } = drag;
   if (!drag.moved) {
     drag.moved = true;
-    const { L, T, W, H } = wornBox(it);
+    const { w, h } = size(it);
     const g = drag.ghost = new Image();
     g.src = it.src; g.className = 'ghost'; g.alt = '';
-    g.style.width = W + 'px';
+    g.style.width = w + 'px';
     document.body.appendChild(g);
-    if (drag.fromDoll) { // pick it up from where it sits on her
+    if (placed.has(it.id)) { // pick it up from where it is
+      const { L, T } = boxOf(it);
       drag.ox = drag.x0 - L; drag.oy = drag.y0 - T;
       hidden = it; paint();
-    } else { drag.ox = W / 2; drag.oy = H / 2; }
+    } else { drag.ox = w / 2; drag.oy = h / 2; }
   }
   drag.ghost.style.left = e.clientX - drag.ox + 'px';
   drag.ghost.style.top = e.clientY - drag.oy + 'px';
-  doll.classList.toggle('target', !drag.fromDoll && overDoll(e.clientX, e.clientY));
 }
 function endDrag(e, cancelled) {
   if (!drag || drag.id !== e.pointerId) return;
-  const { it, moved, ghost, fromDoll } = drag;
+  const { it, moved, ghost, ox, oy } = drag;
   drag = null;
-  doll.classList.remove('target');
-  if (hidden) { hidden = null; paint(); }
   if (ghost) { ghost.classList.add('gone'); setTimeout(() => ghost.remove(), 160); }
-  if (cancelled) return;
-  if (!moved) return;                                            // dressing is drag & drop only
-  if (fromDoll) { if (!overDoll(e.clientX, e.clientY, 0)) setWorn(it, false); }
-  else if (overDoll(e.clientX, e.clientY)) setWorn(it, true);    // dropped on her: snaps into place
+  hidden = null;
+  if (cancelled || !moved) { paint(); return; }
+  const s = stage.getBoundingClientRect();
+  if (e.clientY > s.bottom) { // dropped on the shelf: back in the closet
+    placed.delete(it.id); render();
+    statusEl.textContent = `Put the ${it.name} away.`;
+    return;
+  }
+  // keep the finger's spot inside the room, then land on Molly's pixel grid
+  const fx = Math.max(s.left, Math.min(s.right, e.clientX)), fy = Math.max(s.top, Math.min(s.bottom, e.clientY));
+  const x = (fx - ox - s.left) * view.k - view.ox, y = (fy - oy - s.top) * view.k - view.oy;
+  placed.set(it.id, { x: Math.round((x - GX) / P) * P + GX, y: Math.round(y / P) * P });
+  render(true);
+  statusEl.textContent = `Moved the ${it.name}.`;
 }
 
 for (const it of ITEMS) {
   const b = it.slot;
-  b.addEventListener('pointerdown', e => startDrag(e, it, false));
+  b.addEventListener('pointerdown', e => startDrag(e, it));
   b.addEventListener('pointermove', moveDrag);
   b.addEventListener('pointerup', e => endDrag(e, false));
   b.addEventListener('pointercancel', e => endDrag(e, true));
-  b.addEventListener('click', e => { if (e.detail === 0) setWorn(it, !worn.has(it.id)); }); // keyboard Enter/Space
+  b.addEventListener('click', e => { // keyboard only (Enter/Space): put it on her, or away
+    if (e.detail !== 0) return;
+    placed.has(it.id) ? placed.delete(it.id) : placed.set(it.id, { x: it.x, y: it.y });
+    render(true);
+  });
 }
-doll.addEventListener('pointerdown', e => { const it = itemAt(e.clientX, e.clientY); if (it) startDrag(e, it, true); });
-doll.addEventListener('pointermove', moveDrag);
-doll.addEventListener('pointerup', e => endDrag(e, false));
-doll.addEventListener('pointercancel', e => endDrag(e, true));
+canvas.addEventListener('pointerdown', e => { const it = itemAt(e.clientX, e.clientY); if (it) startDrag(e, it); });
+canvas.addEventListener('pointermove', moveDrag);
+canvas.addEventListener('pointerup', e => endDrag(e, false));
+canvas.addEventListener('pointercancel', e => endDrag(e, true));
 
 document.getElementById('reset').addEventListener('click', () => {
-  worn.clear(); render();
-  statusEl.textContent = 'Molly is back in her tank and shorts.';
+  placed.clear(); render();
+  statusEl.textContent = 'Everything is back in the closet.';
 });
 
 // ---- kitty: free to wander the room, but never off it ----
-const stage = document.getElementById('stage');
 const kitty = document.getElementById('kitty');
 let kd = null;
 function placeKitty(left, top) {
@@ -268,6 +284,7 @@ kitty.addEventListener('keydown', e => {
   placeKitty(k.left - s.left + m[0] * step, k.top - s.top + m[1] * step);
 });
 
+measure();
 render();
 </script>
 </body>
