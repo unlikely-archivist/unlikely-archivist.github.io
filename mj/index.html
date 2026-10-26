@@ -40,7 +40,6 @@ h1{margin:0;font-size:0}
 
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
-.hint{margin:0 0 5px;text-align:center;font-size:14px;font-style:italic;opacity:.75}
 .slots{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:6px;align-items:stretch}
 .slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
@@ -53,11 +52,10 @@ h1{margin:0;font-size:0}
 .go[hidden]{display:none}
 @keyframes bob{50%{transform:translate(-50%,-3px)}}
 /* at the bar the closet steps aside (same height, so Molly doesn't jump) */
-.shelf.out .hint,.shelf.out .slots{visibility:hidden}
+.shelf.out .slots{visibility:hidden}
 .outpanel{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding-bottom:env(safe-area-inset-bottom)}
 .shelf.out .outpanel{display:flex}
-.outpanel p{margin:0;font-style:italic}
-.home{padding:8px 16px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.home{padding:6px 22px;font-size:24px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
 .fade{position:fixed;inset:0;z-index:60;background:#1a1012;opacity:0;pointer-events:none;transition:opacity .35s}
 .fade.on{opacity:1}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
@@ -74,15 +72,14 @@ h1{margin:0;font-size:0}
     <div class="room" id="room" aria-hidden="true"></div>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
-    <button class="go" id="goOut" hidden>time to go out! ♡</button>
+    <button class="go" id="goOut" hidden>time to go out!</button>
   </main>
 
   <nav class="shelf" id="shelf" aria-label="Molly's closet">
-    <p class="hint">drag onto Molly ♡ drag back here to put away</p>
     <div class="slots" id="slots">
       <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
     </div>
-    <div class="outpanel"><p>out at the bar ♡</p><button class="home" id="goHome">⌂ go home to change</button></div>
+    <div class="outpanel"><button class="home" id="goHome" aria-label="Go home">⌂</button></div>
   </nav>
   <p class="sr-only" aria-live="polite" id="status"></p>
   <div class="fade" id="fade"></div>
@@ -161,6 +158,7 @@ function paint() {
 function loadPiece(it) {
   const img = load(it.src);
   it.img = img;
+  img.addEventListener('load', () => it !== KITTY && render()); // the go-out check needs each piece's size
   img.decode().then(() => {
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
@@ -183,9 +181,16 @@ for (const it of ITEMS) {
   it.slot = b;
 }
 
+// a piece counts as "on her" when its middle is over Molly, not lying elsewhere in the room
+function onHer(it) {
+  const p = placed.get(it.id);
+  if (!p || !it.img.naturalWidth) return false;
+  const cx = p.x + it.w / 2, cy = p.y + it.w * it.img.naturalHeight / it.img.naturalWidth / 2;
+  return cx > 0 && cx < DOLL_W && cy > 0 && cy < DOLL_H;
+}
 function render(popped) {
   for (const it of ITEMS) it.slot.setAttribute('aria-pressed', placed.has(it.id));
-  document.getElementById('goOut').hidden = scene !== 'room' || placed.size === 0; // dressed (wearing something) → ready to go out
+  document.getElementById('goOut').hidden = scene !== 'room' || !ITEMS.every(onHer); // full outfit on → ready to go out
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
