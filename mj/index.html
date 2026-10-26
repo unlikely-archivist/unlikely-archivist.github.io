@@ -40,7 +40,7 @@ h1{margin:0;font-size:0}
 
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
-.slots{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:6px;align-items:stretch}
+.slots{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px;align-items:stretch}
 .slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
@@ -93,6 +93,8 @@ h1{margin:0;font-size:0}
 const DOLL_W = 1090, DOLL_H = 1443, P = 12, GX = 10;
 const ITEMS = [
   { id: 'hat',    name: 'pink cowboy hat', src: 'assets/items/hat.png',    x: 274, y: -36,  w: 552, z: 5 },
+  { id: 'hoodie', name: 'hoodie',          src: 'assets/items/hoodie.png', x: 94,  y: 348,  w: 888, z: 2.5,
+    front: 'assets/items/hoodie-front.png', back: 'assets/items/hoodie-back.png' }, // the hood sits behind her head and hair
   { id: 'jacket', name: 'camo jacket',     src: 'assets/items/jacket.png', x: 166, y: 360,  w: 756, z: 3 },
   { id: 'boots',  name: 'buckle boots',    src: 'assets/items/boots.png',  x: 334, y: 1104, w: 444, z: 2 },
 ];
@@ -145,7 +147,8 @@ function paint() {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const layers = [{ z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
-    ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.img, w: it.w })),
+    ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.frontImg || it.img, w: it.w })),
+    ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w })),
     ...(kittyPos && hidden !== KITTY && scene !== 'bar' ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
@@ -158,6 +161,7 @@ function paint() {
 function loadPiece(it) {
   const img = load(it.src);
   it.img = img;
+  if (it.front) { it.frontImg = load(it.front); it.backImg = load(it.back); }
   img.addEventListener('load', () => it !== KITTY && render()); // the go-out check needs each piece's size
   img.decode().then(() => {
     const c = document.createElement('canvas');
@@ -190,7 +194,9 @@ function onHer(it) {
 }
 function render(popped) {
   for (const it of ITEMS) it.slot.setAttribute('aria-pressed', placed.has(it.id));
-  document.getElementById('goOut').hidden = scene !== 'room' || !ITEMS.every(onHer); // full outfit on → ready to go out
+  const on = id => onHer(ITEMS.find(it => it.id === id));
+  const dressed = on('hat') && on('boots') && (on('jacket') || on('hoodie')); // full outfit: hat, boots and a top
+  document.getElementById('goOut').hidden = scene !== 'room' || !dressed;
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
