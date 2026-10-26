@@ -280,6 +280,9 @@ function endDrag(e, cancelled) {
   const fx = Math.max(s.left, Math.min(s.right, e.clientX)), fy = Math.max(s.top, Math.min(s.bottom, e.clientY));
   const x = (fx - ox - s.left) * view.k - view.ox, y = (fy - oy - s.top) * view.k - view.oy;
   placed.set(it.id, { x: snapX(x), y: snapY(y) });
+  // jacket and hoodie don't go together: putting one on her sends the other back to the shelf
+  const other = { jacket: 'hoodie', hoodie: 'jacket' }[it.id];
+  if (other && onHer(it)) placed.delete(other);
   render(true);
   statusEl.textContent = `Moved the ${it.name}.`;
 }
@@ -293,6 +296,8 @@ for (const it of ITEMS) {
   b.addEventListener('click', e => { // keyboard only (Enter/Space): put it on her, or away
     if (e.detail !== 0) return;
     placed.has(it.id) ? placed.delete(it.id) : placed.set(it.id, { x: it.x, y: it.y });
+    const other = { jacket: 'hoodie', hoodie: 'jacket' }[it.id];
+    if (other && placed.has(it.id)) placed.delete(other);
     render(true);
   });
 }
