@@ -36,11 +36,6 @@ h1{margin:0;font-size:0}
 #outfit{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;touch-action:none;z-index:1}
 #outfit.pop{animation:pop .22s ease-out}
 @keyframes pop{0%{opacity:.85}100%{opacity:1}}
-.kitty{position:absolute;height:calc(var(--ih) * .15);aspect-ratio:1202/1309;left:76%;bottom:calc(var(--ih) * .06);cursor:grab;touch-action:none;z-index:6;outline:none}
-.kitty img{width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
-.kitty.hop{animation:hop .35s ease-out}
-@keyframes hop{40%{transform:translateY(-18%)}}
-.kitty:focus-visible{outline:2px dashed #493b3d;outline-offset:3px}
 
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
@@ -66,7 +61,6 @@ h1{margin:0;font-size:0}
     <div class="room" aria-hidden="true"></div>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
-    <div class="kitty" id="kitty" role="button" tabindex="0" aria-label="Kitty. Drag her around, or use the arrow keys."><img src="assets/kitty.png" alt=""></div>
   </main>
 
   <nav class="shelf" aria-label="Molly's closet">
@@ -97,13 +91,23 @@ const ctx = canvas.getContext('2d');
 const slots = document.getElementById('slots');
 const statusEl = document.getElementById('status');
 const placed = new Map(); // id → {x, y}: clothes that are out of the closet, wherever they were dropped
+// the kitty lives in the room (never on the shelf); drawn on the same grid as Molly, in front of her
+const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 252, z: 6 };
+let kittyPos = null, hop = 0;
 
 // saved outfit (per device; the game works fine without it)
 try {
   const saved = JSON.parse(localStorage.getItem('molly-placed')) || {};
   for (const it of ITEMS) if (Array.isArray(saved[it.id])) placed.set(it.id, { x: saved[it.id][0], y: saved[it.id][1] });
+  const k = JSON.parse(localStorage.getItem('molly-kitty'));
+  if (Array.isArray(k)) kittyPos = { x: k[0], y: k[1] };
 } catch {}
-const save = () => { try { localStorage.setItem('molly-placed', JSON.stringify(Object.fromEntries([...placed].map(([k, v]) => [k, [v.x, v.y]])))); } catch {} };
+const save = () => {
+  try {
+    localStorage.setItem('molly-placed', JSON.stringify(Object.fromEntries([...placed].map(([k, v]) => [k, [v.x, v.y]]))));
+    if (kittyPos) localStorage.setItem('molly-kitty', JSON.stringify([kittyPos.x, kittyPos.y]));
+  } catch {}
+};
 
 const load = src => { const img = new Image(); img.onload = () => paint(); img.src = src; return img; }; // repaint as each picture arrives
 const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png');
@@ -117,6 +121,8 @@ function measure() {
   const k = DOLL_H / d.height;
   canvas.width = Math.ceil(s.width * k); canvas.height = Math.ceil(s.height * k);
   view = { k, ox: Math.round((d.left - s.left) * k), oy: Math.round((d.top - s.top) * k) };
+  // first visit: kitty sits on the floor to Molly's right, inside the room
+  if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1164 };
   paint();
 }
 new ResizeObserver(measure).observe(stage);
@@ -125,7 +131,8 @@ function paint() {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const layers = [{ z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
-    ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.img, w: it.w }))]
+    ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.img, w: it.w })),
+    ...(kittyPos && hidden !== KITTY ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
     if (!L.img.complete || !L.img.naturalWidth) continue;
@@ -133,11 +140,10 @@ function paint() {
   }
 }
 
-// ---- load the clothes and build the closet shelf ----
-for (const it of ITEMS) {
+// keep the pixels so you can only grab something where it is actually visible
+function loadPiece(it) {
   const img = load(it.src);
   it.img = img;
-  // keep the pixels so you can only grab a piece where it is actually visible
   img.decode().then(() => {
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
@@ -145,6 +151,12 @@ for (const it of ITEMS) {
     cx.drawImage(img, 0, 0);
     it.alpha = (u, v) => cx.getImageData(Math.min(c.width - 1, u * c.width) | 0, Math.min(c.height - 1, v * c.height) | 0, 1, 1).data[3];
   }).catch(() => {});
+}
+loadPiece(KITTY);
+
+// ---- load the clothes and build the closet shelf ----
+for (const it of ITEMS) {
+  loadPiece(it);
 
   const b = document.createElement('button');
   b.className = 'slot';
@@ -163,13 +175,15 @@ function render(popped) {
 
 // ---- drag & drop: clothes stay exactly where you drop them; drop one on the shelf to put it away ----
 const TAP = 8;
+const snapX = x => Math.round((x - GX) / P) * P + GX, snapY = y => Math.round(y / P) * P;
+const posOf = it => (it === KITTY ? kittyPos : placed.get(it.id));
 const size = it => ({ w: it.w / view.k, h: (it.w / view.k) * it.img.naturalHeight / it.img.naturalWidth }); // CSS px
 function boxOf(it) { // where a placed piece is on screen
-  const s = stage.getBoundingClientRect(), p = placed.get(it.id), { w, h } = size(it);
+  const s = stage.getBoundingClientRect(), p = posOf(it), { w, h } = size(it);
   return { L: s.left + (view.ox + p.x) / view.k, T: s.top + (view.oy + p.y) / view.k, W: w, H: h };
 }
-function itemAt(x, y) { // topmost placed piece with visible pixels under the finger
-  return ITEMS.filter(it => placed.has(it.id)).sort((a, b) => b.z - a.z).find(it => {
+function itemAt(x, y) { // topmost placed piece (or the kitty) with visible pixels under the finger
+  return [KITTY, ...ITEMS.filter(it => placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
     const { L, T, W, H } = boxOf(it), u = (x - L) / W, v = (y - T) / H;
     if (u < 0 || v < 0 || u > 1 || v > 1) return false;
     try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
@@ -194,7 +208,7 @@ function moveDrag(e) {
     g.src = it.src; g.className = 'ghost'; g.alt = '';
     g.style.width = w + 'px';
     document.body.appendChild(g);
-    if (placed.has(it.id)) { // pick it up from where it is
+    if (posOf(it)) { // pick it up from where it is
       const { L, T } = boxOf(it);
       drag.ox = drag.x0 - L; drag.oy = drag.y0 - T;
       hidden = it; paint();
@@ -209,8 +223,25 @@ function endDrag(e, cancelled) {
   drag = null;
   if (ghost) { ghost.classList.add('gone'); setTimeout(() => ghost.remove(), 160); }
   hidden = null;
-  if (cancelled || !moved) { paint(); return; }
+  if (cancelled || !moved) {
+    if (!cancelled && it === KITTY) { hop = 24; paint(); setTimeout(() => { hop = 0; paint(); }, 180); } // tap: little hop
+    else paint();
+    return;
+  }
   const s = stage.getBoundingClientRect();
+  if (it === KITTY) { // the kitty stays in the room, wherever she's let go
+    const { w, h } = size(it);
+    const L = Math.max(s.left, Math.min(s.right - w, e.clientX - ox)), T = Math.max(s.top, Math.min(s.bottom - h, e.clientY - oy));
+    let x = snapX((L - s.left) * view.k - view.ox), y = snapY((T - s.top) * view.k - view.oy);
+    const kh = KITTY.w * KITTY.img.naturalHeight / KITTY.img.naturalWidth; // rounding to the grid must not push her off the edge
+    while (x < -view.ox) x += P;
+    while (x + KITTY.w > s.width * view.k - view.ox) x -= P;
+    while (y < -view.oy) y += P;
+    while (y + kh > s.height * view.k - view.oy) y -= P;
+    kittyPos = { x, y };
+    render();
+    return;
+  }
   if (e.clientY > s.bottom) { // dropped on the shelf: back in the closet
     placed.delete(it.id); render();
     statusEl.textContent = `Put the ${it.name} away.`;
@@ -219,7 +250,7 @@ function endDrag(e, cancelled) {
   // keep the finger's spot inside the room, then land on Molly's pixel grid
   const fx = Math.max(s.left, Math.min(s.right, e.clientX)), fy = Math.max(s.top, Math.min(s.bottom, e.clientY));
   const x = (fx - ox - s.left) * view.k - view.ox, y = (fy - oy - s.top) * view.k - view.oy;
-  placed.set(it.id, { x: Math.round((x - GX) / P) * P + GX, y: Math.round(y / P) * P });
+  placed.set(it.id, { x: snapX(x), y: snapY(y) });
   render(true);
   statusEl.textContent = `Moved the ${it.name}.`;
 }
@@ -244,44 +275,6 @@ canvas.addEventListener('pointercancel', e => endDrag(e, true));
 document.getElementById('reset').addEventListener('click', () => {
   placed.clear(); render();
   statusEl.textContent = 'Everything is back in the closet.';
-});
-
-// ---- kitty: free to wander the room, but never off it ----
-const kitty = document.getElementById('kitty');
-let kd = null;
-function placeKitty(left, top) {
-  const s = stage.getBoundingClientRect(), k = kitty.getBoundingClientRect();
-  left = Math.max(0, Math.min(s.width - k.width, left));
-  top = Math.max(0, Math.min(s.height - k.height, top));
-  kitty.style.left = left / s.width * 100 + '%';
-  kitty.style.top = top / s.height * 100 + '%';
-  kitty.style.bottom = 'auto';
-}
-kitty.addEventListener('pointerdown', e => {
-  if (e.button > 0) return;
-  e.preventDefault();
-  const k = kitty.getBoundingClientRect();
-  kd = { id: e.pointerId, ox: e.clientX - k.left, oy: e.clientY - k.top, x0: e.clientX, y0: e.clientY };
-  kitty.setPointerCapture(e.pointerId);
-});
-kitty.addEventListener('pointermove', e => {
-  if (!kd || kd.id !== e.pointerId) return;
-  const s = stage.getBoundingClientRect();
-  placeKitty(e.clientX - s.left - kd.ox, e.clientY - s.top - kd.oy);
-});
-const kittyUp = e => {
-  if (!kd || kd.id !== e.pointerId) return;
-  if (Math.hypot(e.clientX - kd.x0, e.clientY - kd.y0) < TAP) { kitty.classList.remove('hop'); void kitty.offsetWidth; kitty.classList.add('hop'); }
-  kd = null;
-};
-kitty.addEventListener('pointerup', kittyUp);
-kitty.addEventListener('pointercancel', kittyUp);
-kitty.addEventListener('keydown', e => {
-  const m = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
-  if (!m) return;
-  e.preventDefault();
-  const s = stage.getBoundingClientRect(), k = kitty.getBoundingClientRect(), step = e.shiftKey ? 24 : 6;
-  placeKitty(k.left - s.left + m[0] * step, k.top - s.top + m[1] * step);
 });
 
 measure();
