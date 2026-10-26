@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5a0a7">
+<meta name="robots" content="noindex">
+<title>MOLLY</title>
+<!-- home-screen app: icon, name, opens full screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<meta name="apple-mobile-web-app-title" content="Molly">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:#ed8d9e;color:#493b3d;font:16px Georgia,serif;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+img{-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* one phone-shaped column; on wide screens it just sits in the middle */
+.game{display:flex;flex-direction:column;height:100vh;height:100svh;min-height:520px;max-width:min(100%,calc(100svh * .78));margin:0 auto;position:relative;background:#f5a0a7;box-shadow:0 0 0 3px #493b3d}
+header{flex:none;padding:max(4px,env(safe-area-inset-top)) 8px 0;text-align:center;background:#f5a0a7;position:relative;z-index:5}
+h1{margin:0;font-size:0}
+.title-art{display:block;height:clamp(40px,8svh,64px);width:auto;max-width:80%;margin:4px auto;image-rendering:pixelated}
+
+/* the room: the background is cropped, never stretched; things are placed using --ih (rendered image height) */
+.stage{flex:1 1 auto;min-height:0;position:relative;overflow:hidden;container-type:size;touch-action:none}
+.room{position:absolute;inset:0;background:url("assets/pink-room.jpg") center bottom / cover no-repeat;image-rendering:pixelated}
+.stage>*{--ih:max(100cqh,calc(100cqw * 1.3278))}
+.doll{position:absolute;left:50%;bottom:calc(var(--ih) * .075);height:min(calc(var(--ih) * .68),calc(100cqh - var(--ih) * .075 - 20px));aspect-ratio:1090/1443;transform:translateX(-50%);touch-action:none}
+.doll img{position:absolute;image-rendering:pixelated;pointer-events:none}
+.doll .base,.doll .hair{inset:0;width:100%;height:100%}
+.doll .base{z-index:0}.doll .hair{z-index:4}
+.worn{animation:pop .22s ease-out}
+@keyframes pop{0%{transform:scale(1.08)}100%{transform:none}}
+.kitty{position:absolute;height:calc(var(--ih) * .15);aspect-ratio:1202/1309;left:76%;bottom:calc(var(--ih) * .06);cursor:grab;touch-action:none;z-index:6;outline:none}
+.kitty img{width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
+.kitty.hop{animation:hop .35s ease-out}
+@keyframes hop{40%{transform:translateY(-18%)}}
+.kitty:focus-visible{outline:2px dashed #493b3d;outline-offset:3px}
+
+/* the closet shelf: always on screen */
+.shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
+.hint{margin:0 0 5px;text-align:center;font-size:14px;font-style:italic;opacity:.75}
+.slots{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px;align-items:stretch}
+.slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
+.slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
+.slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
+.slot[aria-pressed="true"] img{opacity:.3}
+.slot[aria-pressed="true"]::after{content:"✓";position:absolute;top:2px;right:6px;font-weight:bold}
+.reset{min-width:52px;cursor:pointer;font-size:22px;touch-action:manipulation}
+.slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
+
+.ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
+.ghost.gone{opacity:0}
+.doll.target::before{content:"";position:absolute;inset:-4%;border:3px dashed rgba(255,255,255,.9);border-radius:20px}
+</style>
+</head>
+<body>
+<div class="game">
+  <header><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1></header>
+
+  <main class="stage" id="stage">
+    <div class="room" aria-hidden="true"></div>
+    <div class="doll" id="doll" role="img" aria-label="Molly">
+      <img class="base" src="assets/doll-base.png" alt="">
+      <img class="hair" src="assets/hair-front.png" alt="">
+    </div>
+    <div class="kitty" id="kitty" role="button" tabindex="0" aria-label="Kitty. Drag her around, or use the arrow keys."><img src="assets/kitty.png" alt=""></div>
+  </main>
+
+  <nav class="shelf" aria-label="Molly's closet">
+    <p class="hint">tap or drag clothes onto Molly ♡</p>
+    <div class="slots" id="slots">
+      <button class="slot reset" id="reset" aria-label="Take everything off">↺</button>
+    </div>
+  </nav>
+  <p class="sr-only" aria-live="polite" id="status"></p>
+</div>
+
+<script>
+// Where each item sits when worn, in doll-base.png pixels (1090 × 1443).
+// Molly is drawn in 12px blocks; item images use the same 12px blocks, so keep
+// x ≡ 10 and y ≡ 0 (mod 12) and widths a multiple of 12 or the pixels won't line up.
+// (The tee was drawn on Molly's own canvas, so it keeps its original spot.)
+// z = stacking order on the doll: base 0, hair-front 4 (hair falls over everything but the hat).
+const DOLL_W = 1090, DOLL_H = 1443;
+const ITEMS = [
+  { id: 'hat',    name: 'pink cowboy hat', src: 'assets/items/hat.png',    x: 274, y: -36,  w: 552, z: 5 },
+  { id: 'tee',    name: 'black tee',       src: 'assets/items/tee.png',    x: 194, y: 390,  w: 701, z: 1 },
+  { id: 'jacket', name: 'camo jacket',     src: 'assets/items/jacket.png', x: 202, y: 384,  w: 708, z: 3 },
+  { id: 'boots',  name: 'buckle boots',    src: 'assets/items/boots.png',  x: 334, y: 1104, w: 444, z: 2 },
+];
+
+const doll = document.getElementById('doll');
+const slots = document.getElementById('slots');
+const statusEl = document.getElementById('status');
+const worn = new Set();
+
+// saved outfit (per device; the game works fine without it)
+try { (JSON.parse(localStorage.getItem('molly-outfit')) || []).forEach(id => worn.add(id)); } catch {}
+const save = () => { try { localStorage.setItem('molly-outfit', JSON.stringify([...worn])); } catch {} };
+
+// ---- build the doll layers and the shelf ----
+for (const it of ITEMS) {
+  const img = new Image();
+  img.src = it.src;
+  img.alt = '';
+  img.style.cssText = `left:${it.x / DOLL_W * 100}%;top:${it.y / DOLL_H * 100}%;width:${it.w / DOLL_W * 100}%;z-index:${it.z};display:none`;
+  doll.appendChild(img);
+  it.layer = img;
+  // keep the pixels so a tap only grabs an item where it is actually visible
+  img.decode().then(() => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    it.alpha = (u, v) => ctx.getImageData(Math.min(c.width - 1, u * c.width) | 0, Math.min(c.height - 1, v * c.height) | 0, 1, 1).data[3];
+  }).catch(() => {});
+
+  const b = document.createElement('button');
+  b.className = 'slot';
+  b.innerHTML = `<img src="${it.src}" alt="">`;
+  b.setAttribute('aria-label', it.name);
+  slots.insertBefore(b, document.getElementById('reset'));
+  it.slot = b;
+}
+
+function render(changed) {
+  for (const it of ITEMS) {
+    const on = worn.has(it.id);
+    it.layer.style.display = on ? '' : 'none';
+    it.slot.setAttribute('aria-pressed', on);
+    if (it === changed) { it.layer.classList.remove('worn'); void it.layer.offsetWidth; if (on) it.layer.classList.add('worn'); }
+  }
+  save();
+}
+function setWorn(it, on) {
+  on ? worn.add(it.id) : worn.delete(it.id);
+  render(it);
+  statusEl.textContent = `Molly ${on ? 'put on' : 'took off'} the ${it.name}.`;
+}
+
+// ---- drag & tap: shelf → Molly to wear it, Molly → anywhere else to take it off ----
+const TAP = 8;
+const dollRect = () => doll.getBoundingClientRect();
+const overDoll = (x, y, pad = 0.12) => {
+  const r = dollRect(), px = r.width * pad, py = r.height * pad * 0.5;
+  return x > r.left - px && x < r.right + px && y > r.top - py && y < r.bottom + py;
+};
+function wornBox(it) {
+  const r = dollRect();
+  const W = (it.w / DOLL_W) * r.width;
+  return { L: (it.x / DOLL_W) * r.width + r.left, T: (it.y / DOLL_H) * r.height + r.top, W, H: W * it.layer.naturalHeight / it.layer.naturalWidth };
+}
+function itemAt(x, y) { // topmost worn item with visible pixels under the finger
+  return ITEMS.filter(it => worn.has(it.id)).sort((a, b) => b.z - a.z).find(it => {
+    const { L, T, W, H } = wornBox(it), u = (x - L) / W, v = (y - T) / H;
+    if (u < 0 || v < 0 || u > 1 || v > 1) return false;
+    try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
+  });
+}
+
+let drag = null;
+function startDrag(e, it, fromDoll) {
+  if (e.button > 0 || drag) return;
+  e.preventDefault();
+  drag = { it, fromDoll, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, ghost: null };
+  e.currentTarget.setPointerCapture(e.pointerId);
+}
+function moveDrag(e) {
+  if (!drag || drag.id !== e.pointerId) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < TAP) return;
+  const { it } = drag;
+  if (!drag.moved) {
+    drag.moved = true;
+    const { L, T, W, H } = wornBox(it);
+    const g = drag.ghost = new Image();
+    g.src = it.src; g.className = 'ghost'; g.alt = '';
+    g.style.width = W + 'px';
+    document.body.appendChild(g);
+    if (drag.fromDoll) { // pick it up from where it sits on her
+      drag.ox = drag.x0 - L; drag.oy = drag.y0 - T;
+      it.layer.style.visibility = 'hidden';
+    } else { drag.ox = W / 2; drag.oy = H / 2; }
+  }
+  drag.ghost.style.left = e.clientX - drag.ox + 'px';
+  drag.ghost.style.top = e.clientY - drag.oy + 'px';
+  doll.classList.toggle('target', !drag.fromDoll && overDoll(e.clientX, e.clientY));
+}
+function endDrag(e, cancelled) {
+  if (!drag || drag.id !== e.pointerId) return;
+  const { it, moved, ghost, fromDoll } = drag;
+  drag = null;
+  doll.classList.remove('target');
+  it.layer.style.visibility = '';
+  if (ghost) { ghost.classList.add('gone'); setTimeout(() => ghost.remove(), 160); }
+  if (cancelled) return;
+  if (!moved) setWorn(it, !worn.has(it.id));                     // a tap toggles
+  else if (fromDoll) { if (!overDoll(e.clientX, e.clientY, 0)) setWorn(it, false); }
+  else if (overDoll(e.clientX, e.clientY)) setWorn(it, true);    // dropped on her: snaps into place
+}
+
+for (const it of ITEMS) {
+  const b = it.slot;
+  b.addEventListener('pointerdown', e => startDrag(e, it, false));
+  b.addEventListener('pointermove', moveDrag);
+  b.addEventListener('pointerup', e => endDrag(e, false));
+  b.addEventListener('pointercancel', e => endDrag(e, true));
+  b.addEventListener('click', e => { if (e.detail === 0) setWorn(it, !worn.has(it.id)); }); // keyboard Enter/Space
+}
+doll.addEventListener('pointerdown', e => { const it = itemAt(e.clientX, e.clientY); if (it) startDrag(e, it, true); });
+doll.addEventListener('pointermove', moveDrag);
+doll.addEventListener('pointerup', e => endDrag(e, false));
+doll.addEventListener('pointercancel', e => endDrag(e, true));
+
+document.getElementById('reset').addEventListener('click', () => {
+  worn.clear(); render();
+  statusEl.textContent = 'Molly is back in her tank and shorts.';
+});
+
+// ---- kitty: free to wander the room, but never off it ----
+const stage = document.getElementById('stage');
+const kitty = document.getElementById('kitty');
+let kd = null;
+function placeKitty(left, top) {
+  const s = stage.getBoundingClientRect(), k = kitty.getBoundingClientRect();
+  left = Math.max(0, Math.min(s.width - k.width, left));
+  top = Math.max(0, Math.min(s.height - k.height, top));
+  kitty.style.left = left / s.width * 100 + '%';
+  kitty.style.top = top / s.height * 100 + '%';
+  kitty.style.bottom = 'auto';
+}
+kitty.addEventListener('pointerdown', e => {
+  if (e.button > 0) return;
+  e.preventDefault();
+  const k = kitty.getBoundingClientRect();
+  kd = { id: e.pointerId, ox: e.clientX - k.left, oy: e.clientY - k.top, x0: e.clientX, y0: e.clientY };
+  kitty.setPointerCapture(e.pointerId);
+});
+kitty.addEventListener('pointermove', e => {
+  if (!kd || kd.id !== e.pointerId) return;
+  const s = stage.getBoundingClientRect();
+  placeKitty(e.clientX - s.left - kd.ox, e.clientY - s.top - kd.oy);
+});
+const kittyUp = e => {
+  if (!kd || kd.id !== e.pointerId) return;
+  if (Math.hypot(e.clientX - kd.x0, e.clientY - kd.y0) < TAP) { kitty.classList.remove('hop'); void kitty.offsetWidth; kitty.classList.add('hop'); }
+  kd = null;
+};
+kitty.addEventListener('pointerup', kittyUp);
+kitty.addEventListener('pointercancel', kittyUp);
+kitty.addEventListener('keydown', e => {
+  const m = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+  if (!m) return;
+  e.preventDefault();
+  const s = stage.getBoundingClientRect(), k = kitty.getBoundingClientRect(), step = e.shiftKey ? 24 : 6;
+  placeKitty(k.left - s.left + m[0] * step, k.top - s.top + m[1] * step);
+});
+
+render();
+</script>
+</body>
+</html>
