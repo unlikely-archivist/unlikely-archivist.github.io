@@ -43,7 +43,7 @@ h1{margin:0;font-size:0}
 
 /* the closet shelf: always on screen */
 .shelf{flex:none;position:relative;z-index:5;background:#fbd3dc;border-top:3px solid #493b3d;padding:6px 8px max(8px,env(safe-area-inset-bottom))}
-.slots{display:grid;grid-template-columns:repeat(5,1fr) auto;gap:6px;align-items:stretch}
+.slots{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px;align-items:stretch}
 .slot{position:relative;display:grid;place-items:center;min-height:clamp(58px,10svh,84px);padding:6px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;box-shadow:0 3px 0 #493b3d;cursor:grab;touch-action:none;font:inherit;color:inherit}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
@@ -117,7 +117,6 @@ const ITEMS = [
     front: 'assets/items/hoodie-front.png', back: 'assets/items/hoodie-back.png' }, // the hood sits behind her head and hair
   { id: 'jacket', name: 'camo jacket',     src: 'assets/items/jacket.png', x: 166, y: 360,  w: 756, z: 3 },
   { id: 'boots',  name: 'buckle boots',    src: 'assets/items/boots.png',  x: 334, y: 1104, w: 444, z: 2 },
-  { id: 'skirt',  name: 'leopard skirt',   src: 'assets/items/skirt.png',  x: 346, y: 660,  w: 396, z: 2.2 }, // cut from a picture of her wearing it; covers her shorts
 ];
 
 const stage = document.getElementById('stage');
