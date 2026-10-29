@@ -31,6 +31,7 @@ h1{margin:0;font-size:0}
 .stage{flex:1 1 auto;min-height:0;position:relative;overflow:hidden;container-type:size;touch-action:none}
 .room{position:absolute;inset:0;background:url("assets/pink-room.jpg") center bottom / cover no-repeat;image-rendering:pixelated}
 .room.bar{background-image:url("assets/bar.jpg")}
+.room.spooky{background-image:url("assets/spooky.jpg")}
 .stage>*{--ih:max(100cqh,calc(100cqw * 1.3278))}
 .doll{--dh:min(calc(var(--ih) * .68),calc(100cqh - var(--ih) * .075 - 20px));position:absolute;left:50%;bottom:calc(var(--ih) * .075);height:var(--dh);width:calc(var(--dh) * 1090 / 1443);margin-left:calc(var(--dh) * -545 / 1443);touch-action:none}
 /* the doll box only measures where Molly stands; she and every piece of clothing are drawn into one canvas over the room */
@@ -155,13 +156,13 @@ new ResizeObserver(measure).observe(stage);
 function paint() {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const molly = costume ? [{ z: 0, img: costumeImg, x: COSTUME.x, y: COSTUME.y, w: COSTUME.w }] : [
+  const molly = costume ? [{ z: 0, img: costumeImg, x: COSTUME.x, y: COSTUME.y + sceneDrop(), w: COSTUME.w }] : [
     { z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
     ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.frontImg || it.img, w: it.w })),
     ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w }))];
   const layers = [...molly,
-    ...(pumpkinPos && scene !== 'bar' ? [{ ...pumpkinPos, z: PUMPKIN.z, img: PUMPKIN.img, w: PUMPKIN.w }] : []),
-    ...(kittyPos && hidden !== KITTY && scene !== 'bar' ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
+    ...(pumpkinPos && scene !== 'bar' ? [{ ...posOf(PUMPKIN), z: PUMPKIN.z, img: PUMPKIN.img, w: PUMPKIN.w }] : []),
+    ...(kittyPos && hidden !== KITTY && scene !== 'bar' && !costume ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
     if (!L.img.complete || !L.img.naturalWidth) continue;
@@ -206,6 +207,7 @@ function onHer(it) {
   return cx > 0 && cx < DOLL_W && cy > 0 && cy < DOLL_H;
 }
 function render(popped) {
+  document.getElementById('room').classList.toggle('spooky', costume && scene === 'room'); // the costume comes with its own place
   for (const it of ITEMS) { it.slot.setAttribute('aria-pressed', placed.has(it.id)); it.slot.disabled = costume; } // no changing clothes in costume
   const on = id => onHer(ITEMS.find(it => it.id === id));
   const dressed = on('hat') && on('boots') && (on('jacket') || on('hoodie')); // full outfit: hat, boots and a top
@@ -218,14 +220,16 @@ function render(popped) {
 // ---- drag & drop: clothes stay exactly where you drop them; drop one on the shelf to put it away ----
 const TAP = 8;
 const snapX = x => Math.round((x - GX) / P) * P + GX, snapY = y => Math.round(y / P) * P;
-const posOf = it => (it === KITTY ? kittyPos : it === PUMPKIN ? pumpkinPos : placed.get(it.id));
+const posOf = it => (it === KITTY ? kittyPos : it === PUMPKIN ? { x: pumpkinPos.x, y: pumpkinPos.y + (costume ? sceneDrop() : 0) } : placed.get(it.id));
+// in the costume's scene (no floor) she and the pumpkin stand right at the bottom edge, kept on the 12px grid
+function sceneDrop() { return Math.max(0, Math.floor((canvas.height - view.oy - 1404 - 6) / P) * P); }
 const size = it => ({ w: it.w / view.k, h: (it.w / view.k) * it.img.naturalHeight / it.img.naturalWidth }); // CSS px
 function boxOf(it) { // where a placed piece is on screen
   const s = stage.getBoundingClientRect(), p = posOf(it), { w, h } = size(it);
   return { L: s.left + (view.ox + p.x) / view.k, T: s.top + (view.oy + p.y) / view.k, W: w, H: h };
 }
 function itemAt(x, y) { // topmost placed piece (or the kitty) with visible pixels under the finger
-  return [...(scene !== 'bar' ? [KITTY, PUMPKIN] : []), ...ITEMS.filter(it => !costume && placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
+  return [...(scene !== 'bar' ? (costume ? [PUMPKIN] : [KITTY, PUMPKIN]) : []), ...ITEMS.filter(it => !costume && placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
     const { L, T, W, H } = boxOf(it), u = (x - L) / W, v = (y - T) / H;
     if (u < 0 || v < 0 || u > 1 || v > 1) return false;
     try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
