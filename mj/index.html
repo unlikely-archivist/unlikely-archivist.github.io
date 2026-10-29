@@ -64,8 +64,8 @@ h1{margin:0;font-size:0}
 .fade.on{opacity:1}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 
-/* a little framed photo on the wall between Molly and the curtain; tap it to flip through the photos */
-.photo{position:absolute;z-index:2;bottom:calc(var(--ih) * .6);left:calc(50% + var(--ih) * .2);width:calc(var(--ih) * .07);aspect-ratio:1;transform:translateX(-50%);padding:calc(var(--ih) * .009);border:calc(var(--ih) * .006) solid #493b3d;background:#c98a8f;box-shadow:inset 0 0 0 calc(var(--ih) * .005) #f3d7da,0 3px 0 rgba(73,59,61,.35);cursor:pointer;touch-action:manipulation}
+/* little framed photos on the wall between Molly and the curtain (--l, --b, --s in room heights); tap one to open it */
+.photo{position:absolute;z-index:2;bottom:calc(var(--ih) * var(--b));left:calc(50% + var(--ih) * var(--l));width:calc(var(--ih) * var(--s));aspect-ratio:1;transform:translateX(-50%);padding:calc(var(--ih) * .009);border:calc(var(--ih) * .006) solid #493b3d;background:#c98a8f;box-shadow:inset 0 0 0 calc(var(--ih) * .005) #f3d7da,0 3px 0 rgba(73,59,61,.35);cursor:pointer;touch-action:manipulation}
 .photo img{display:block;width:100%;height:100%;image-rendering:pixelated}
 .photo[hidden]{display:none}
 .photo:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
@@ -85,7 +85,11 @@ h1{margin:0;font-size:0}
 
   <main class="stage" id="stage">
     <div class="room" id="room" aria-hidden="true"></div>
-    <button class="photo" id="photo" aria-label="Look at the photos"><img src="assets/photos/frame-thumb.png" alt=""></button>
+    <button class="photo" data-n="0" style="--l:.19;--b:.86;--s:.05" aria-label="Photo 1"><img src="assets/photos/frame-thumb-1.png" alt=""></button>
+    <button class="photo" data-n="1" style="--l:.21;--b:.78;--s:.045" aria-label="Photo 2"><img src="assets/photos/frame-thumb-2.png" alt=""></button>
+    <button class="photo" data-n="2" style="--l:.188;--b:.70;--s:.05" aria-label="Photo 3"><img src="assets/photos/frame-thumb-3.png" alt=""></button>
+    <button class="photo" data-n="3" style="--l:.212;--b:.62;--s:.045" aria-label="Photo 4"><img src="assets/photos/frame-thumb-4.png" alt=""></button>
+    <button class="photo" data-n="4" style="--l:.19;--b:.54;--s:.05" aria-label="Photo 5"><img src="assets/photos/frame-thumb-5.png" alt=""></button>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
     <button class="go" id="goOut" hidden>time to go out!</button>
@@ -279,7 +283,7 @@ function render(popped) {
   const on = id => onHer(ITEMS.find(it => it.id === id));
   const dressed = on('hat') && on('boots') && (on('jacket') || on('hoodie')); // full outfit: hat, boots and a top
   document.getElementById('goOut').hidden = scene !== 'room' || !dressed || costume; // the costume gets its own place later
-  document.getElementById('photo').hidden = scene !== 'room' || costume; // the photo hangs in her room only
+  for (const f of document.querySelectorAll('.photo')) f.hidden = scene !== 'room' || costume; // the photos hang in her room only
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
@@ -430,7 +434,7 @@ function goTo(next) {
 onTap(document.getElementById('goOut'), () => goTo('bar'));
 onTap(document.getElementById('goHome'), () => goTo('room'));
 
-// ---- the photo on the wall opens an album: tap the arrows (or the photo) to flip through ----
+// ---- each photo on the wall opens the album: tap the arrows (or the photo) to flip through ----
 const PHOTOS = [1, 2, 3, 4, 5].map(n => `assets/photos/${n}.jpg`);
 const album = document.getElementById('album'), albumImg = document.getElementById('albumImg');
 let photoAt = 0;
@@ -439,11 +443,12 @@ function showPhoto(i) {
   albumImg.src = PHOTOS[photoAt];
   document.getElementById('albumCount').textContent = `${photoAt + 1} / ${PHOTOS.length}`;
 }
-onTap(document.getElementById('photo'), () => { showPhoto(0); album.hidden = false; document.getElementById('albumNext').focus(); });
+let openedFrom = null;
+for (const f of document.querySelectorAll('.photo')) onTap(f, () => { openedFrom = f; showPhoto(+f.dataset.n); album.hidden = false; document.getElementById('albumNext').focus(); });
 onTap(document.getElementById('albumPrev'), () => showPhoto(photoAt - 1));
 onTap(document.getElementById('albumNext'), () => showPhoto(photoAt + 1));
 onTap(albumImg, () => showPhoto(photoAt + 1));
-onTap(document.getElementById('albumClose'), () => { album.hidden = true; document.getElementById('photo').focus(); });
+onTap(document.getElementById('albumClose'), () => { album.hidden = true; openedFrom?.focus(); });
 document.addEventListener('keydown', e => {
   if (album.hidden) return;
   if (e.key === 'Escape') album.hidden = true;
