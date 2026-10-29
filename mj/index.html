@@ -24,7 +24,8 @@ img{-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-tou
 /* one phone-shaped column; on wide screens it just sits in the middle */
 .game{display:flex;flex-direction:column;height:100vh;height:100svh;min-height:520px;max-width:min(100%,calc(100svh * .78));margin:0 auto;position:relative;background:#f5a0a7;box-shadow:0 0 0 3px #493b3d}
 header{flex:none;padding:max(4px,env(safe-area-inset-top)) 8px 0;text-align:center;background:#f5a0a7;position:relative;z-index:5}
-.arcade{position:absolute;right:10px;top:10px;font-size:26px;text-decoration:none;padding:4px;border:2px solid #493b3d;border-radius:10px;background:#fff3f6;line-height:1.2}
+.arcade{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:6px auto 8px;padding:8px 16px;width:fit-content;max-width:100%;font-size:16px;text-decoration:none;color:inherit;border:2px solid #493b3d;border-radius:10px;background:#fff3f6;line-height:1.2;touch-action:manipulation}
+.arcade:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 h1{margin:0;font-size:0}
 .title-art{display:block;height:clamp(40px,8svh,64px);width:auto;max-width:80%;margin:4px auto;image-rendering:pixelated}
 
@@ -69,7 +70,7 @@ h1{margin:0;font-size:0}
 </head>
 <body>
 <div class="game">
-  <header><a class="arcade" href="claw.html" aria-label="Play the plushie claw machine">🧸</a><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1></header>
+  <header><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1><a class="arcade" href="claw.html"><span aria-hidden="true">🧸</span> Play the claw machine</a></header>
 
   <main class="stage" id="stage">
     <div class="room" id="room" aria-hidden="true"></div>
