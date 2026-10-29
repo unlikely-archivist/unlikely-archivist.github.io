@@ -64,7 +64,7 @@ h1{margin:0;font-size:0}
 .fade.on{opacity:1}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 
-/* little framed photos on the wall between Molly and the curtain (--l, --b, --s in room heights); tap one to open it */
+/* a row of little framed photos on the wall above Molly (--l, --b, --s in room heights); tap one to open it */
 .photo{position:absolute;z-index:2;bottom:calc(var(--ih) * var(--b));left:calc(50% + var(--ih) * var(--l));width:calc(var(--ih) * var(--s));aspect-ratio:1;transform:translateX(-50%);padding:calc(var(--ih) * .009);border:calc(var(--ih) * .006) solid #493b3d;background:#c98a8f;box-shadow:inset 0 0 0 calc(var(--ih) * .005) #f3d7da,0 3px 0 rgba(73,59,61,.35);cursor:pointer;touch-action:manipulation}
 .photo img{display:block;width:100%;height:100%;image-rendering:pixelated}
 .photo[hidden]{display:none}
@@ -85,11 +85,11 @@ h1{margin:0;font-size:0}
 
   <main class="stage" id="stage">
     <div class="room" id="room" aria-hidden="true"></div>
-    <button class="photo" data-n="0" style="--l:.19;--b:.86;--s:.05" aria-label="Photo 1"><img src="assets/photos/frame-thumb-1.png" alt=""></button>
-    <button class="photo" data-n="1" style="--l:.21;--b:.78;--s:.045" aria-label="Photo 2"><img src="assets/photos/frame-thumb-2.png" alt=""></button>
-    <button class="photo" data-n="2" style="--l:.188;--b:.70;--s:.05" aria-label="Photo 3"><img src="assets/photos/frame-thumb-3.png" alt=""></button>
-    <button class="photo" data-n="3" style="--l:.212;--b:.62;--s:.045" aria-label="Photo 4"><img src="assets/photos/frame-thumb-4.png" alt=""></button>
-    <button class="photo" data-n="4" style="--l:.19;--b:.54;--s:.05" aria-label="Photo 5"><img src="assets/photos/frame-thumb-5.png" alt=""></button>
+    <button class="photo" data-n="0" style="--l:-0.077;--b:0.845;--s:0.05" aria-label="Photo 1"><img src="assets/photos/frame-thumb-1.png" alt=""></button>
+    <button class="photo" data-n="1" style="--l:-0.011;--b:0.845;--s:0.05" aria-label="Photo 2"><img src="assets/photos/frame-thumb-2.png" alt=""></button>
+    <button class="photo" data-n="2" style="--l:0.065;--b:0.835;--s:0.07" aria-label="Photo 3"><img src="assets/photos/frame-thumb-3.png" alt=""></button>
+    <button class="photo" data-n="3" style="--l:0.141;--b:0.845;--s:0.05" aria-label="Photo 4"><img src="assets/photos/frame-thumb-4.png" alt=""></button>
+    <button class="photo" data-n="4" style="--l:0.207;--b:0.845;--s:0.05" aria-label="Photo 5"><img src="assets/photos/frame-thumb-5.png" alt=""></button>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
     <button class="go" id="goOut" hidden>time to go out!</button>
@@ -103,9 +103,9 @@ h1{margin:0;font-size:0}
   </nav>
   <p class="sr-only" aria-live="polite" id="status"></p>
   <div class="fade" id="fade"></div>
-  <div class="album" id="album" role="dialog" aria-label="Photos" hidden>
+  <div class="album" id="album" role="dialog" aria-label="Photo" hidden>
     <img id="albumImg" alt="">
-    <div class="row"><button id="albumPrev" aria-label="Previous photo">‹</button><span id="albumCount"></span><button id="albumNext" aria-label="Next photo">›</button><button id="albumClose" aria-label="Close photos">✕</button></div>
+    <div class="row"><button id="albumClose" aria-label="Close photo">✕</button></div>
   </div>
 </div>
 
@@ -434,27 +434,17 @@ function goTo(next) {
 onTap(document.getElementById('goOut'), () => goTo('bar'));
 onTap(document.getElementById('goHome'), () => goTo('room'));
 
-// ---- each photo on the wall opens the album: tap the arrows (or the photo) to flip through ----
-const PHOTOS = [1, 2, 3, 4, 5].map(n => `assets/photos/${n}.jpg`);
+// ---- tapping a photo on the wall opens just that photo; tap it, ✕ or Esc to close ----
 const album = document.getElementById('album'), albumImg = document.getElementById('albumImg');
-let photoAt = 0;
-function showPhoto(i) {
-  photoAt = (i + PHOTOS.length) % PHOTOS.length;
-  albumImg.src = PHOTOS[photoAt];
-  document.getElementById('albumCount').textContent = `${photoAt + 1} / ${PHOTOS.length}`;
-}
 let openedFrom = null;
-for (const f of document.querySelectorAll('.photo')) onTap(f, () => { openedFrom = f; showPhoto(+f.dataset.n); album.hidden = false; document.getElementById('albumNext').focus(); });
-onTap(document.getElementById('albumPrev'), () => showPhoto(photoAt - 1));
-onTap(document.getElementById('albumNext'), () => showPhoto(photoAt + 1));
-onTap(albumImg, () => showPhoto(photoAt + 1));
-onTap(document.getElementById('albumClose'), () => { album.hidden = true; openedFrom?.focus(); });
-document.addEventListener('keydown', e => {
-  if (album.hidden) return;
-  if (e.key === 'Escape') album.hidden = true;
-  if (e.key === 'ArrowRight') showPhoto(photoAt + 1);
-  if (e.key === 'ArrowLeft') showPhoto(photoAt - 1);
+const closeAlbum = () => { album.hidden = true; openedFrom?.focus(); };
+for (const f of document.querySelectorAll('.photo')) onTap(f, () => {
+  openedFrom = f; albumImg.src = `assets/photos/${+f.dataset.n + 1}.jpg`;
+  album.hidden = false; document.getElementById('albumClose').focus();
 });
+onTap(albumImg, closeAlbum);
+onTap(document.getElementById('albumClose'), closeAlbum);
+document.addEventListener('keydown', e => { if (!album.hidden && e.key === 'Escape') closeAlbum(); });
 
 onTap(document.getElementById('reset'), () => {
   placed.clear(); render();
