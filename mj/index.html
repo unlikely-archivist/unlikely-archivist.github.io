@@ -155,6 +155,28 @@ const load = src => { const img = new Image(); img.onload = () => paint(); img.s
 const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png'), costumeImg = load(COSTUME.src);
 let hidden = null; // the item being dragged
 
+// ---- blinking: every few seconds her eyelids close for a moment (drawn on her 12px grid, over doll-base.png's eyes) ----
+const LIDS = new Image();
+{
+  const c = document.createElement('canvas'); c.width = DOLL_W; c.height = DOLL_H;
+  const g = c.getContext('2d');
+  for (const [x0, x1, y, flick] of [[430, 518, 228, 418], [586, 670, 240, 670]]) { // her right eye sits a block lower
+    g.fillStyle = '#f8b393'; g.fillRect(x0, y - 12, x1 - x0, 60); // lid skin over the open eye
+    g.fillStyle = '#341e1e';
+    g.fillRect(x0 + 12, y + 36, x1 - x0 - 24, 12); // closed lash line, curving up at the ends
+    g.fillRect(x0, y + 24, 12, 12); g.fillRect(x1 - 12, y + 24, 12, 12);
+    g.fillRect(flick, y + 12, 12, 12); // lash flick at the outer corner
+  }
+  LIDS.src = c.toDataURL();
+}
+let blinking = false;
+(function blink() {
+  setTimeout(() => {
+    if (!costume && !hidden) { blinking = true; paint(); setTimeout(() => { blinking = false; paint(); blink(); }, 140); }
+    else blink();
+  }, 3000 + Math.random() * 3000);
+})();
+
 // view: k = doll pixels per CSS pixel, (ox, oy) = Molly's corner in canvas pixels
 let view = { k: 1, ox: 0, oy: 0 };
 function measure() {
@@ -176,6 +198,7 @@ function paint() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const molly = costume ? [{ z: 0, img: costumeImg, x: COSTUME.x, y: COSTUME.y + sceneDrop(), w: COSTUME.w }] : [
     { z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
+    ...(blinking ? [{ z: 0, img: LIDS, x: 0, y: 0, w: DOLL_W }] : []),
     ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.frontImg || it.img, w: it.w })),
     ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w }))];
   const layers = [...molly,
