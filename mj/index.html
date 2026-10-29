@@ -45,6 +45,7 @@ h1{margin:0;font-size:0}
 .slot img{max-width:100%;max-height:clamp(42px,8svh,68px);object-fit:contain;image-rendering:pixelated;pointer-events:none}
 .slot[aria-pressed="true"]{background:#f7b9c9;box-shadow:none;transform:translateY(3px)}
 .slot[aria-pressed="true"] img{opacity:.3}
+.slot:disabled{opacity:.45;cursor:default}
 .slot[aria-pressed="true"]::after{content:"✓";position:absolute;top:2px;right:6px;font-weight:bold}
 .reset{min-width:52px;cursor:pointer;font-size:22px;touch-action:manipulation}
 /* "time to go out!" floats at the top of the room once she's wearing something */
@@ -109,6 +110,10 @@ const placed = new Map(); // id → {x, y}: clothes that are out of the closet, 
 // the kitty lives in the room (never on the shelf); drawn on the same grid as Molly, in front of her
 const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 456, z: 6 }; // the original 38 × 41 drawing, one block per pixel
 let kittyPos = null, hop = 0;
+// tapping the pumpkin turns Molly into her costume (and back); it sits in her room and doesn't move
+const PUMPKIN = { id: 'pumpkin', name: 'pumpkin', src: 'assets/pumpkin.png', w: 456, z: 6 }; // 38 × 41 drawing, one block per pixel
+const COSTUME = { src: 'assets/costume.png', x: 154, y: -288, w: 792 };
+let pumpkinPos = null, costume = false;
 let scene = 'room'; // 'room' or 'bar'; the kitty only appears at home
 
 // saved outfit (per device; the game works fine without it)
@@ -117,16 +122,18 @@ try {
   for (const it of ITEMS) if (Array.isArray(saved[it.id])) placed.set(it.id, { x: saved[it.id][0], y: saved[it.id][1] });
   const k = JSON.parse(localStorage.getItem('molly-kitty-v2'));
   if (Array.isArray(k)) kittyPos = { x: k[0], y: k[1] };
+  costume = localStorage.getItem('molly-costume') === '1';
 } catch {}
 const save = () => {
   try {
     localStorage.setItem('molly-placed', JSON.stringify(Object.fromEntries([...placed].map(([k, v]) => [k, [v.x, v.y]]))));
     if (kittyPos) localStorage.setItem('molly-kitty-v2', JSON.stringify([kittyPos.x, kittyPos.y]));
+    localStorage.setItem('molly-costume', costume ? '1' : '0');
   } catch {}
 };
 
 const load = src => { const img = new Image(); img.onload = () => paint(); img.src = src; return img; }; // repaint as each picture arrives
-const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png');
+const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png'), costumeImg = load(COSTUME.src);
 let hidden = null; // the item being dragged
 
 // view: k = doll pixels per CSS pixel, (ox, oy) = Molly's corner in canvas pixels
@@ -139,6 +146,8 @@ function measure() {
   view = { k, ox: Math.round((d.left - s.left) * k), oy: Math.round((d.top - s.top) * k) };
   // first visit: kitty sits on the floor to Molly's right, inside the room
   if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1404 - 492 };
+  // the pumpkin sits on the floor to Molly's left
+  pumpkinPos = { x: snapX(Math.max(-view.ox + 24, 160 - PUMPKIN.w)), y: 1404 - 492 };
   paint();
 }
 new ResizeObserver(measure).observe(stage);
@@ -146,9 +155,12 @@ new ResizeObserver(measure).observe(stage);
 function paint() {
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const layers = [{ z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
+  const molly = costume ? [{ z: 0, img: costumeImg, x: COSTUME.x, y: COSTUME.y, w: COSTUME.w }] : [
+    { z: 0, img: base, x: 0, y: 0, w: DOLL_W }, { z: 4, img: hair, x: 0, y: 0, w: DOLL_W },
     ...ITEMS.filter(it => placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: it.z, img: it.frontImg || it.img, w: it.w })),
-    ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w })),
+    ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w }))];
+  const layers = [...molly,
+    ...(pumpkinPos && scene !== 'bar' ? [{ ...pumpkinPos, z: PUMPKIN.z, img: PUMPKIN.img, w: PUMPKIN.w }] : []),
     ...(kittyPos && hidden !== KITTY && scene !== 'bar' ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
@@ -162,7 +174,7 @@ function loadPiece(it) {
   const img = load(it.src);
   it.img = img;
   if (it.front) { it.frontImg = load(it.front); it.backImg = load(it.back); }
-  img.addEventListener('load', () => it !== KITTY && render()); // the go-out check needs each piece's size
+  img.addEventListener('load', () => it !== KITTY && it !== PUMPKIN && render()); // the go-out check needs each piece's size
   img.decode().then(() => {
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
@@ -172,6 +184,7 @@ function loadPiece(it) {
   }).catch(() => {});
 }
 loadPiece(KITTY);
+loadPiece(PUMPKIN);
 
 // ---- load the clothes and build the closet shelf ----
 for (const it of ITEMS) {
@@ -193,10 +206,10 @@ function onHer(it) {
   return cx > 0 && cx < DOLL_W && cy > 0 && cy < DOLL_H;
 }
 function render(popped) {
-  for (const it of ITEMS) it.slot.setAttribute('aria-pressed', placed.has(it.id));
+  for (const it of ITEMS) { it.slot.setAttribute('aria-pressed', placed.has(it.id)); it.slot.disabled = costume; } // no changing clothes in costume
   const on = id => onHer(ITEMS.find(it => it.id === id));
   const dressed = on('hat') && on('boots') && (on('jacket') || on('hoodie')); // full outfit: hat, boots and a top
-  document.getElementById('goOut').hidden = scene !== 'room' || !dressed;
+  document.getElementById('goOut').hidden = scene !== 'room' || !dressed || costume; // the costume gets its own place later
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
@@ -205,14 +218,14 @@ function render(popped) {
 // ---- drag & drop: clothes stay exactly where you drop them; drop one on the shelf to put it away ----
 const TAP = 8;
 const snapX = x => Math.round((x - GX) / P) * P + GX, snapY = y => Math.round(y / P) * P;
-const posOf = it => (it === KITTY ? kittyPos : placed.get(it.id));
+const posOf = it => (it === KITTY ? kittyPos : it === PUMPKIN ? pumpkinPos : placed.get(it.id));
 const size = it => ({ w: it.w / view.k, h: (it.w / view.k) * it.img.naturalHeight / it.img.naturalWidth }); // CSS px
 function boxOf(it) { // where a placed piece is on screen
   const s = stage.getBoundingClientRect(), p = posOf(it), { w, h } = size(it);
   return { L: s.left + (view.ox + p.x) / view.k, T: s.top + (view.oy + p.y) / view.k, W: w, H: h };
 }
 function itemAt(x, y) { // topmost placed piece (or the kitty) with visible pixels under the finger
-  return [...(scene !== 'bar' ? [KITTY] : []), ...ITEMS.filter(it => placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
+  return [...(scene !== 'bar' ? [KITTY, PUMPKIN] : []), ...ITEMS.filter(it => !costume && placed.has(it.id))].sort((a, b) => b.z - a.z).find(it => {
     const { L, T, W, H } = boxOf(it), u = (x - L) / W, v = (y - T) / H;
     if (u < 0 || v < 0 || u > 1 || v > 1) return false;
     try { return it.alpha ? it.alpha(u, v) > 40 : true; } catch { return true; } // e.g. opened from a file:// URL
@@ -230,6 +243,7 @@ function moveDrag(e) {
   if (!drag || drag.id !== e.pointerId) return;
   if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < TAP) return;
   const { it } = drag;
+  if (it === PUMPKIN) { drag.moved = true; return; } // the pumpkin stays put
   if (!drag.moved) {
     drag.moved = true;
     const { w, h } = size(it);
@@ -254,9 +268,11 @@ function endDrag(e, cancelled) {
   hidden = null;
   if (cancelled || !moved) {
     if (!cancelled && it === KITTY) { hop = 24; paint(); setTimeout(() => { hop = 0; paint(); }, 180); } // tap: little hop
+    else if (!cancelled && it === PUMPKIN) { costume = !costume; render(true); statusEl.textContent = costume ? 'Molly put on her costume.' : 'Molly took off her costume.'; }
     else paint();
     return;
   }
+  if (it === PUMPKIN) return;
   const s = stage.getBoundingClientRect();
   if (it === KITTY) { // the kitty stays in the room, wherever she's let go
     const { w, h } = size(it);
@@ -289,7 +305,7 @@ function endDrag(e, cancelled) {
 
 for (const it of ITEMS) {
   const b = it.slot;
-  b.addEventListener('pointerdown', e => startDrag(e, it));
+  b.addEventListener('pointerdown', e => { if (!costume) startDrag(e, it); });
   b.addEventListener('pointermove', moveDrag);
   b.addEventListener('pointerup', e => endDrag(e, false));
   b.addEventListener('pointercancel', e => endDrag(e, true));
