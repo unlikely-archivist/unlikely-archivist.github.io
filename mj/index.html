@@ -64,6 +64,17 @@ h1{margin:0;font-size:0}
 .fade.on{opacity:1}
 .slot:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
 
+/* a little framed photo on the wall between Molly and the curtain; tap it to flip through the photos */
+.photo{position:absolute;z-index:2;bottom:calc(var(--ih) * .6);left:calc(50% + var(--ih) * .235);width:calc(var(--ih) * .07);aspect-ratio:1;transform:translateX(-50%);padding:calc(var(--ih) * .009);border:calc(var(--ih) * .006) solid #493b3d;background:#c98a8f;box-shadow:inset 0 0 0 calc(var(--ih) * .005) #f3d7da,0 3px 0 rgba(73,59,61,.35);cursor:pointer;touch-action:manipulation}
+.photo img{display:block;width:100%;height:100%;image-rendering:pixelated}
+.photo[hidden]{display:none}
+.photo:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
+.album{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(26,16,18,.92)}
+.album[hidden]{display:none}
+.album img{max-width:100%;max-height:calc(100svh - 120px);border:6px solid #fff3f6;box-shadow:0 0 0 3px #493b3d;object-fit:contain}
+.album .row{display:flex;gap:10px;align-items:center;color:#fff3f6}
+.album button{min-width:52px;min-height:44px;font-size:22px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;color:#493b3d;cursor:pointer;touch-action:manipulation}
+
 .ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
 .ghost.gone{opacity:0}
 </style>
@@ -74,6 +85,7 @@ h1{margin:0;font-size:0}
 
   <main class="stage" id="stage">
     <div class="room" id="room" aria-hidden="true"></div>
+    <button class="photo" id="photo" aria-label="Look at the photos"><img src="assets/photos/frame-thumb.png" alt=""></button>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
     <button class="go" id="goOut" hidden>time to go out!</button>
@@ -87,6 +99,10 @@ h1{margin:0;font-size:0}
   </nav>
   <p class="sr-only" aria-live="polite" id="status"></p>
   <div class="fade" id="fade"></div>
+  <div class="album" id="album" role="dialog" aria-label="Photos" hidden>
+    <img id="albumImg" alt="">
+    <div class="row"><button id="albumPrev" aria-label="Previous photo">‹</button><span id="albumCount"></span><button id="albumNext" aria-label="Next photo">›</button><button id="albumClose" aria-label="Close photos">✕</button></div>
+  </div>
 </div>
 
 <script>
@@ -214,6 +230,7 @@ function render(popped) {
   const on = id => onHer(ITEMS.find(it => it.id === id));
   const dressed = on('hat') && on('boots') && (on('jacket') || on('hoodie')); // full outfit: hat, boots and a top
   document.getElementById('goOut').hidden = scene !== 'room' || !dressed || costume; // the costume gets its own place later
+  document.getElementById('photo').hidden = scene !== 'room' || costume; // the photo hangs in her room only
   paint();
   if (popped) { canvas.classList.remove('pop'); void canvas.offsetWidth; canvas.classList.add('pop'); }
   save();
@@ -363,6 +380,27 @@ function goTo(next) {
 }
 onTap(document.getElementById('goOut'), () => goTo('bar'));
 onTap(document.getElementById('goHome'), () => goTo('room'));
+
+// ---- the photo on the wall opens an album: tap the arrows (or the photo) to flip through ----
+const PHOTOS = [1, 2, 3, 4, 5].map(n => `assets/photos/${n}.jpg`);
+const album = document.getElementById('album'), albumImg = document.getElementById('albumImg');
+let photoAt = 0;
+function showPhoto(i) {
+  photoAt = (i + PHOTOS.length) % PHOTOS.length;
+  albumImg.src = PHOTOS[photoAt];
+  document.getElementById('albumCount').textContent = `${photoAt + 1} / ${PHOTOS.length}`;
+}
+onTap(document.getElementById('photo'), () => { showPhoto(0); album.hidden = false; document.getElementById('albumNext').focus(); });
+onTap(document.getElementById('albumPrev'), () => showPhoto(photoAt - 1));
+onTap(document.getElementById('albumNext'), () => showPhoto(photoAt + 1));
+onTap(albumImg, () => showPhoto(photoAt + 1));
+onTap(document.getElementById('albumClose'), () => { album.hidden = true; document.getElementById('photo').focus(); });
+document.addEventListener('keydown', e => {
+  if (album.hidden) return;
+  if (e.key === 'Escape') album.hidden = true;
+  if (e.key === 'ArrowRight') showPhoto(photoAt + 1);
+  if (e.key === 'ArrowLeft') showPhoto(photoAt - 1);
+});
 
 onTap(document.getElementById('reset'), () => {
   placed.clear(); render();
