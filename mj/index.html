@@ -127,7 +127,7 @@ const slots = document.getElementById('slots');
 const statusEl = document.getElementById('status');
 const placed = new Map(); // id → {x, y}: clothes that are out of the closet, wherever they were dropped
 // the kitty lives in the room (never on the shelf); drawn on the same grid as Molly, in front of her
-const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty.png', w: 456, z: 6 }; // the original 38 × 41 drawing, one block per pixel
+const KITTY = { id: 'kitty', name: 'kitty', src: 'assets/kitty-0.png', w: 468, z: 6 }; // 39 × 43 drawing, one block per pixel; frame 0 looks at you
 let kittyPos = null, hop = 0;
 // tapping the pumpkin turns Molly into her costume (and back); it sits in her room and doesn't move
 const PUMPKIN = { id: 'pumpkin', name: 'pumpkin', src: 'assets/pumpkin.png', w: 456, z: 6 }; // 38 × 41 drawing, one block per pixel
@@ -154,6 +154,16 @@ const save = () => {
 const load = src => { const img = new Image(); img.onload = () => paint(); img.src = src; return img; }; // repaint as each picture arrives
 const base = load('assets/doll-base.png'), hair = load('assets/hair-front.png'), costumeImg = load(COSTUME.src);
 let hidden = null; // the item being dragged
+
+// ---- the kitty looks around now and then: glance right, look up, glance right, back to you ----
+const KITTY_FRAMES = [0, 1, 2, 3].map(n => load(`assets/kitty-${n}.png`));
+let kittyFrame = 0, looking = false;
+function lookAround() {
+  if (looking) return;
+  looking = true;
+  [1, 2, 3, 0].forEach((f, i) => setTimeout(() => { kittyFrame = f; paint(); if (f === 0) looking = false; }, 450 * (i + 1)));
+}
+(function idle() { setTimeout(() => { lookAround(); idle(); }, 6000 + Math.random() * 4000); })();
 
 // ---- blinking: every few seconds her eyelids close for a moment (drawn on her 12px grid, over doll-base.png's eyes) ----
 const LIDS = new Image();
@@ -186,7 +196,8 @@ function measure() {
   canvas.width = Math.ceil(s.width * k); canvas.height = Math.ceil(s.height * k);
   view = { k, ox: Math.round((d.left - s.left) * k), oy: Math.round((d.top - s.top) * k) };
   // first visit: kitty sits on the floor to Molly's right, inside the room
-  if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1404 - 492 };
+  if (!kittyPos) kittyPos = { x: snapX(Math.min(1054, canvas.width - view.ox - KITTY.w - 24)), y: 1404 - 516 };
+  while (kittyPos.x > -view.ox && kittyPos.x + KITTY.w > canvas.width - view.ox) kittyPos.x -= P; // keep her whole on narrow screens
   // the pumpkin sits on the floor to Molly's left
   pumpkinPos = { x: snapX(Math.max(-view.ox + 24, 160 - PUMPKIN.w)), y: 1404 - 492 };
   paint();
@@ -203,7 +214,7 @@ function paint() {
     ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w }))];
   const layers = [...molly,
     ...(pumpkinPos && scene !== 'bar' ? [{ ...posOf(PUMPKIN), z: PUMPKIN.z, img: PUMPKIN.img, w: PUMPKIN.w }] : []),
-    ...(kittyPos && hidden !== KITTY && scene !== 'bar' && !costume ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
+    ...(kittyPos && hidden !== KITTY && scene !== 'bar' && !costume ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY_FRAMES[kittyFrame].naturalWidth ? KITTY_FRAMES[kittyFrame] : KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
     if (!L.img.complete || !L.img.naturalWidth) continue;
@@ -339,7 +350,7 @@ function endDrag(e, cancelled) {
   if (ghost) { ghost.classList.add('gone'); setTimeout(() => ghost.remove(), 160); }
   hidden = null;
   if (cancelled || !moved) {
-    if (!cancelled && it === KITTY) { hop = 24; paint(); setTimeout(() => { hop = 0; paint(); }, 180); } // tap: little hop
+    if (!cancelled && it === KITTY) { hop = 24; paint(); setTimeout(() => { hop = 0; paint(); lookAround(); }, 180); } // tap: little hop, then a look around
     else if (!cancelled && it === PUMPKIN) { costume = !costume; render(true); statusEl.textContent = costume ? 'Molly put on her costume.' : 'Molly took off her costume.'; }
     else paint();
     return;
