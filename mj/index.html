@@ -75,13 +75,23 @@ h1{margin:0;font-size:0}
 .album .row{display:flex;gap:10px;align-items:center;color:#fff3f6}
 .album button{min-width:52px;min-height:44px;font-size:22px;border:3px solid #493b3d;border-radius:10px;background:#fff3f6;color:#493b3d;cursor:pointer;touch-action:manipulation}
 
+/* a pink flip phone in the top-left corner: it rings now and then; answer it (or call out) and Eryn comes over */
+.phone{position:absolute;top:max(6px,env(safe-area-inset-top));left:8px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;touch-action:manipulation;z-index:6}
+.phone img{height:40px;width:auto;image-rendering:pixelated;pointer-events:none}
+.phone.ringing img{animation:buzz .09s linear infinite}
+.phone.ringing::after{content:"";position:absolute;inset:2px;border-radius:50%;box-shadow:0 0 0 2px #fff3f6;animation:ripple .9s ease-out infinite;pointer-events:none}
+@keyframes buzz{25%{transform:translate(-1px,0) rotate(-8deg)}75%{transform:translate(1px,0) rotate(8deg)}}
+@keyframes ripple{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.25)}}
+.phone:focus-visible{outline:3px dashed #493b3d;outline-offset:2px}
+.say{position:absolute;top:8px;left:8px;z-index:4;max-width:70%;padding:6px 12px;border:3px solid #493b3d;border-radius:12px 12px 12px 2px;background:#fff3f6;font:italic 16px Georgia,serif;box-shadow:0 3px 0 #493b3d;pointer-events:none;transition:opacity .25s}
+.say[hidden]{display:block;opacity:0}
 .ghost{position:fixed;z-index:50;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 6px 4px rgba(73,59,61,.35));transition:opacity .15s}
 .ghost.gone{opacity:0}
 </style>
 </head>
 <body>
 <div class="game">
-  <header><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1><a class="arcade" href="claw.html" aria-label="Play the claw machine" title="Play the claw machine">🧸</a></header>
+  <header><h1><img class="title-art" src="assets/molly-title.gif" alt="MOLLY"></h1><button class="phone" id="phone" aria-label="Pink flip phone: call Eryn"><img id="phoneImg" src="assets/eryn/phone.png" alt=""></button><a class="arcade" href="claw.html" aria-label="Play the claw machine" title="Play the claw machine">🧸</a></header>
 
   <main class="stage" id="stage">
     <div class="room" id="room" aria-hidden="true"></div>
@@ -92,6 +102,7 @@ h1{margin:0;font-size:0}
     <button class="photo" data-n="4" style="--l:.195;--b:.645;--s:.045" aria-label="Photo 5"><img src="assets/photos/frame-thumb-5.png" alt=""></button>
     <div class="doll" id="doll" aria-hidden="true"></div>
     <canvas id="outfit" role="img" aria-label="Molly"></canvas>
+    <p class="say" id="say" hidden aria-hidden="true"></p>
     <button class="go" id="goOut" hidden>time to go out!</button>
   </main>
 
@@ -207,6 +218,7 @@ function paint() {
     ...ITEMS.filter(it => it.backImg && placed.has(it.id) && it !== hidden).map(it => ({ ...placed.get(it.id), z: -1, img: it.backImg, w: it.w }))];
   const layers = [...molly,
     ...(pumpkinPos && scene !== 'bar' ? [{ ...posOf(PUMPKIN), z: PUMPKIN.z, img: PUMPKIN.img, w: PUMPKIN.w }] : []),
+    ...(eryn.here && ERYN.img.complete ? [{ x: eryn.x, y: ERYN.y + (costume ? sceneDrop() : 0) - eryn.hop, z: ERYN.z, img: ERYN.img, w: ERYN.w }] : []),
     ...(kittyPos && hidden !== KITTY && scene !== 'bar' && !costume ? [{ x: kittyPos.x, y: kittyPos.y - hop, z: KITTY.z, img: KITTY.img, w: KITTY.w }] : [])]
     .sort((a, b) => a.z - b.z);
   for (const L of layers) {
@@ -450,6 +462,88 @@ onTap(document.getElementById('reset'), () => {
   placed.clear(); render();
   statusEl.textContent = 'Everything is back in the closet.';
 });
+
+// ---- Eryn: never here on her own. The pink flip phone rings now and then (or you can call her);
+// answer it and she walks in from the left to stand by Molly. Call again and she heads home. ----
+// eryn.png is her drawing on Molly's 12px grid (54 × 116 blocks); she stands on the same floor line as Molly
+const ERYN = { src: 'assets/eryn/eryn.png', w: 648, y: 1404 - 1392, z: -0.5 }; // behind Molly so they can stand close
+ERYN.img = load(ERYN.src);
+const PHONE = { closed: 'assets/eryn/phone.png', ring: 'assets/eryn/phone-ring.png', open: 'assets/eryn/phone-open.png' };
+for (const src of Object.values(PHONE)) new Image().src = src; // preload so the swaps don't flicker
+const phone = document.getElementById('phone'), phoneImg = document.getElementById('phoneImg'), say = document.getElementById('say');
+const eryn = { here: false, x: 0, hop: 0, walking: false };
+let ringing = false, ringTimer = 0, ringStop = 0, ringFlash = 0;
+// where she ends up: on Molly's left (the photos hang on the right), beside her when there's room,
+// a little behind her on narrow phones (never more than ~100px off the edge)
+const erynSpot = () => snapX(Math.min(-180, Math.max(-560, -view.ox - 100)));
+const erynOff = () => snapX(-view.ox - ERYN.w - 24); // just past the left edge
+
+function speak(text, ms = 1600) {
+  say.textContent = text; say.hidden = false;
+  clearTimeout(speak.t); speak.t = setTimeout(() => { say.hidden = true; }, ms);
+}
+function setPhone(state) { phoneImg.src = PHONE[state]; }
+function walk(from, to, done) { // a few steps along the grid, bobbing like the kitty's hop
+  eryn.walking = true;
+  const t0 = performance.now(), dur = 900;
+  (function step(t) {
+    const f = Math.min(1, (t - t0) / dur), e = 1 - (1 - f) ** 2;
+    eryn.x = snapX(from + (to - from) * e);
+    eryn.hop = f < 1 && Math.floor(f * 8) % 2 ? 12 : 0;
+    paint();
+    if (f < 1) requestAnimationFrame(step); else { eryn.walking = false; eryn.hop = 0; paint(); done && done(); }
+  })(t0);
+}
+function startRinging() {
+  if (eryn.here || ringing) return;
+  if (scene !== 'room' || document.hidden || !album.hidden) return scheduleRing(15000); // try again a bit later
+  ringing = true; phone.classList.add('ringing');
+  phone.setAttribute('aria-label', 'Pink flip phone is ringing: answer it');
+  statusEl.textContent = 'The phone is ringing.';
+  ringFlash = setInterval(() => setPhone(phoneImg.src.endsWith('phone-ring.png') ? 'closed' : 'ring'), 260);
+  ringStop = setTimeout(() => { stopRinging(); speak('missed call: eryn ♡', 2200); scheduleRing(); }, 9000);
+}
+function stopRinging() {
+  ringing = false; phone.classList.remove('ringing');
+  clearInterval(ringFlash); clearTimeout(ringStop); setPhone('closed');
+  phone.setAttribute('aria-label', eryn.here ? 'Pink flip phone: tell Eryn bye' : 'Pink flip phone: call Eryn');
+}
+function scheduleRing(ms = 25000 + Math.random() * 35000) { clearTimeout(ringTimer); ringTimer = setTimeout(startRinging, ms); }
+function erynComes(answered) {
+  stopRinging(); clearTimeout(ringTimer);
+  setPhone('open'); speak(answered ? 'eryn: hiii omw!!' : 'calling eryn… “coming over!”');
+  setTimeout(() => {
+    setPhone('closed');
+    eryn.here = true; eryn.x = erynOff(); render();
+    walk(eryn.x, erynSpot(), () => { speak('eryn is here ♡'); statusEl.textContent = 'Eryn came over.'; });
+    phone.setAttribute('aria-label', 'Pink flip phone: tell Eryn bye');
+  }, 1300);
+}
+function erynLeaves() {
+  setPhone('open'); speak('eryn: ok byeee');
+  setTimeout(() => {
+    setPhone('closed');
+    walk(eryn.x, erynOff(), () => { eryn.here = false; paint(); statusEl.textContent = 'Eryn went home.'; scheduleRing(); });
+    phone.setAttribute('aria-label', 'Pink flip phone: call Eryn');
+  }, 1000);
+}
+onTap(phone, () => {
+  if (eryn.walking) return;
+  if (ringing) erynComes(true);
+  else if (eryn.here) erynLeaves();
+  else erynComes(false);
+});
+// tap Eryn and she does a little hop
+canvas.addEventListener('pointerup', e => {
+  if (!eryn.here || eryn.walking || drag) return;
+  const s = stage.getBoundingClientRect(), k = view.k;
+  const u = ((e.clientX - s.left) * k - view.ox - eryn.x) / ERYN.w, v = ((e.clientY - s.top) * k - view.oy - ERYN.y - (costume ? sceneDrop() : 0)) / (ERYN.w * ERYN.img.naturalHeight / ERYN.img.naturalWidth);
+  if (u < 0.1 || u > 0.9 || v < 0 || v > 1 || itemAt(e.clientX, e.clientY)) return; // things in front of her get the tap
+  eryn.hop = 24; paint(); setTimeout(() => { eryn.hop = 0; paint(); }, 180);
+});
+new ResizeObserver(() => { if (eryn.here && !eryn.walking) { eryn.x = erynSpot(); paint(); } }).observe(stage);
+document.addEventListener('visibilitychange', () => { if (document.hidden && ringing) { stopRinging(); scheduleRing(); } });
+scheduleRing(12000 + Math.random() * 10000); // the first call comes a little while after you arrive
 
 measure();
 render();
