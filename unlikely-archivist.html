@@ -174,6 +174,48 @@
       <a class="project-cta" href="https://github.com/unlikely-archivist/crierbaby" target="_blank" rel="noopener noreferrer">Explore crierbaby on GitHub →</a>
     </section>
 
+    <section class="featured-project featured-project-full" aria-labelledby="client-tracker-title">
+      <p class="project-kicker">Client work · Cloudflare Workers · End-to-end encryption</p>
+      <div class="tech-stack-pills">
+        <span class="tech-pill">JavaScript</span>
+        <span class="tech-pill">Cloudflare Workers</span>
+        <span class="tech-pill">WebCrypto</span>
+        <span class="tech-pill">Offline PWA</span>
+        <span class="tech-pill">IndexedDB</span>
+      </div>
+      <h2 id="client-tracker-title">Client Tracker</h2>
+      <p class="project-lead">A booking and client-management app I built for an independent service provider, in use since September 2026. Bookings, deposits, late-cancel fees, and a calendar on a phone, private enough that even I can’t read it.</p>
+
+      <div class="project-story project-story-split">
+        <div>
+          <h3>The problem</h3>
+          <p>The client records are sensitive, and the usual tools keep them on someone else’s server in readable form. The job: bookings, deposits, and cancellation fees that just work on a phone, with no account to get hacked and no data anyone else can see.</p>
+        </div>
+        <div>
+          <h3>The system</h3>
+          <p>Everything is encrypted in the browser before it’s saved. The passcode and a recovery key each unlock the data key, so a forgotten passcode loses nothing. Encrypted backups go to a Cloudflare Worker that only ever sees ciphertext and stores just a hash of the write token. It installs on a phone and works offline.</p>
+        </div>
+      </div>
+
+      <div class="project-pipeline" aria-label="Client Tracker data flow">
+        <span class="pipeline-step">Passcode</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Encrypt on phone</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Saved locally</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Ciphertext backup</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step">Restore with recovery key</span>
+      </div>
+
+      <p class="project-result"><strong>Try the demo</strong><span>relabeled for a wedding photographer, with made-up clients. Passcode: 123456.</span></p>
+
+      <div class="project-actions">
+        <a class="project-cta" href="client-tracker/" target="_blank" rel="noopener">Open the demo →</a>
+      </div>
+    </section>
+
     <section class="featured-project featured-project-full" aria-labelledby="browser-tools-title">
       <p class="project-kicker">Creative coding · Browser tools</p>
       <div class="tech-stack-pills">
