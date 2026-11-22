@@ -1,0 +1,121 @@
+[
+ {
+  "name": "client-tracker-home",
+  "url": "https://erynmontgomery.com/client-tracker/",
+  "mobile": true,
+  "steps": [
+   [
+    "wait",
+    2500
+   ],
+   [
+    "fill",
+    "input[name=password]",
+    "123456"
+   ],
+   [
+    "press",
+    "Enter"
+   ],
+   [
+    "wait",
+    2500
+   ]
+  ]
+ },
+ {
+  "name": "palette-maker",
+  "url": "https://bloodnbinary.neocities.org/tools/color-palette/",
+  "element": "main#content",
+  "steps": [
+   [
+    "upload",
+    "#fileInput",
+    "assets/fabricated-mask.jpg"
+   ],
+   [
+    "wait",
+    3000
+   ]
+  ]
+ },
+ {
+  "name": "image-degrader",
+  "url": "https://bloodnbinary.neocities.org/tools/image-degrader/",
+  "element": "main#content",
+  "steps": [
+   [
+    "upload",
+    "#fileInput",
+    "assets/fabricated-mask.jpg"
+   ],
+   [
+    "wait",
+    2000
+   ],
+   [
+    "eval",
+    "document.querySelectorAll('input[type=range]').forEach(r => { r.value = Number(r.min) + (Number(r.max) - Number(r.min)) * 0.55; r.dispatchEvent(new Event('input', {bubbles: true})); r.dispatchEvent(new Event('change', {bubbles: true})); })"
+   ],
+   [
+    "wait",
+    3000
+   ]
+  ]
+ },
+ {
+  "name": "planet-planet",
+  "url": "https://planet-planet.neocities.org/"
+ },
+ {
+  "name": "ripurl-home",
+  "url": "https://ripurl.val.run/"
+ },
+ {
+  "name": "fume-lab",
+  "url": "https://unlikelyarchivist--01a17a0df9dd76b3b4ba92175fefd5cc.web.val.run",
+  "steps": [
+   [
+    "click",
+    "text=Okay"
+   ],
+   [
+    "wait",
+    1000
+   ]
+  ]
+ },
+ {
+  "name": "srefdecoder-library",
+  "url": "https://unlikelyarchivist--6ea86dc674ed11f1a66b1607ee4eb77e.web.val.run/library"
+ },
+ {
+  "name": "darkroom",
+  "url": "https://unlikelyarchivist--0a690b526d0111f1a3481607ee4eb77e.web.val.run"
+ },
+ {
+  "name": "button-maker",
+  "url": "https://bloodnbinary.neocities.org/tools/button-maker/",
+  "element": "main#content"
+ },
+ {
+  "name": "pattern-fixer",
+  "url": "https://bloodnbinary.neocities.org/tools/pattern-fixer/",
+  "element": "main#content",
+  "steps": [
+   [
+    "upload",
+    "input[type=file]",
+    "assets/fabricated-mask.jpg"
+   ],
+   [
+    "wait",
+    2500
+   ]
+  ]
+ },
+ {
+  "name": "lepidoptarium",
+  "url": "https://erynmontgomery.com/lepidoptarium/"
+ }
+]
