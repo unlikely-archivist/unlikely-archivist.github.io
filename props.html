@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prop Work · Eryn Montgomery</title>
+  <meta name="description" content="Eryn Montgomery, property master (IATSE Local 478): prop fabrication, film and TV credits, and résumé.">
+  <meta property="og:title" content="Eryn Montgomery · Property Master &amp; Creative Technologist">
+  <meta property="og:description" content="Autonomous systems, encrypted browser apps, fictional worlds, and a decade running film prop departments.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://erynmontgomery.com/">
+  <meta property="og:image" content="media/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="media/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="media/favicon.png" sizes="64x64">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('eryn-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.dataset.theme = savedTheme;
+      }
+    } catch (e) {}
+  </script>
+  <script type="module" crossorigin src="./assets/main-DyHyAk28.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/main-Bi_H7M8p.css">
+</head>
+<body data-page="props">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar" id="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Eryn Montgomery</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Primary sections">
+        <a href="index.html">Home</a>
+        <a href="#film" data-nav="film">Prop work</a>
+        <a href="#dossier" data-nav="dossier">Résumé</a>
+        <a href="tech.html">Tech work</a>
+      </nav>
+
+      <div class="topbar-controls">
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" title="Switch to dark mode">
+          <span class="theme-dot" aria-hidden="true"></span>
+          <span class="theme-label">Dark mode</span>
+        </button>
+        <a class="nav-cta" href="#contact">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="film" class="section-band" aria-label="Prop work and film credits"></section>
+    <section id="dossier" class="section-band section-alt" aria-label="Résumé and contact"></section>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon-inner">
+      <div class="colophon-left">
+        <span class="brand-name">Eryn Montgomery · Unlikely Archivist</span>
+        <p class="colophon-note">
+          Made with TypeScript and Vite. i love analytics, so visits on the live domain are logged (anonymously, no cookies).
+        </p>
+      </div>
+      <div class="colophon-links">
+        <a href="https://github.com/unlikely-archivist" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.val.town/u/unlikelyarchivist" target="_blank" rel="noopener noreferrer">Val Town</a>
+        <a href="https://substack.com/@unlikelyarchivist" target="_blank" rel="noopener noreferrer">Substack</a>
+        <a href="https://www.imdb.com/name/nm5005363/" target="_blank" rel="noopener noreferrer">IMDb</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Archival Image Lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image inspector" hidden>
+    <div class="lightbox-frame">
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image inspector">ESC ✕</button>
+      <img id="lightbox-img" alt="">
+      <p class="lightbox-caption" id="lightbox-caption"></p>
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-dot" aria-hidden="true"></span>
+    <span class="toast-msg"></span>
+  </div>
+
+</body>
+</html>
